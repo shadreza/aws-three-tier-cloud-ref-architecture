@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 580" width="1560" height="580" role="img" aria-label="Step 06 jobs: EventBridge Scheduler starts the check task every minute and the rollup task every hour through ECS RunTask. Tasks run in the private subnets, reach websites through the NAT gateway, and write to RDS and S3.">
+<style>
+  text { font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .n { stroke-width:1.2; }
+  .n.dash { stroke-dasharray:5 4; stroke-width:1.3; }
+  .ab { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:8.5px; font-weight:600; fill:#fff; }
+  .t { font-size:12px; font-weight:600; }
+  .s { font-size:10.5px; }
+  .gt { font-size:12px; font-weight:600; }
+  .grp { stroke-width:1; }
+  .region { fill:none; stroke:#00A4A6; stroke-width:1.4; stroke-dasharray:7 5; }
+  .vpc { fill:none; stroke:#8C4FFF; stroke-width:1.4; }
+  .pub { stroke:#7AA116; stroke-width:1; }
+  .priv { stroke:#00A4A6; stroke-width:1; }
+  .iso { stroke:#147EBA; stroke-width:1; }
+  .gl { font-size:12px; font-weight:600; }
+  text.reg { fill:#00A4A6; } text.vpcl { fill:#8C4FFF; }
+  .sl { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; letter-spacing:.06em; }
+  text.publ { fill:#7AA116; } text.privl { fill:#00A4A6; } text.isol { fill:#147EBA; }
+  .ar { fill:none; stroke-width:1.4; }
+  .ar.thin { stroke-dasharray:3 3; }
+  .al { font-size:10.5px; paint-order:stroke; stroke-width:3px; stroke-linejoin:round; }
+  .lg { font-size:11px; }
+  svg { color:#5A6877; }
+  .bg { fill:#F3F6F8; }
+  .n { fill:#FFFFFF; stroke:#C6D0D9; }
+  .n.dash { stroke:#15202B; }
+  .t, .gt { fill:#15202B; }
+  .s, .sl, .al, .lg { fill:#5A6877; }
+  .al { stroke:#FFFFFF; }
+  .grp { fill:#F7F9FB; stroke:#C6D0D9; }
+  .pub { fill:rgba(122,161,22,.07); }
+  .priv { fill:rgba(0,164,166,.06); }
+  .iso { fill:rgba(20,126,186,.07); }
+  .ar { stroke:#5A6877; }
+  .mk { fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  svg { color:#95A3B1; }
+  .bg { fill:#0E141A; }
+  .n { fill:#161F28; stroke:#344352; }
+  .n.dash { stroke:#E2E8EE; }
+  .t, .gt { fill:#E2E8EE; }
+  .s, .sl, .al, .lg { fill:#95A3B1; }
+  .al { stroke:#161F28; }
+  .grp { fill:#121A22; stroke:#344352; }
+  .pub { fill:rgba(122,161,22,.10); }
+  .priv { fill:rgba(0,164,166,.09); }
+  .iso { fill:rgba(20,126,186,.12); }
+  .ar { stroke:#95A3B1; }
+  .mk { fill:#95A3B1; }
+  }
+</style>
+<defs>
+  <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="1560" height="580" rx="10"/>
+<rect class="region" x="20" y="40" width="1340" height="500" rx="10"/>
+<text class="gl reg" x="34" y="60" text-anchor="start">AWS Region · ap-northeast-1 (Tokyo)</text>
+<rect class="grp" x="40" y="80" width="270" height="190" rx="8"/>
+<text class="gt" x="52" y="99" text-anchor="start">schedule group uptime-dev</text>
+<rect class="n" x="55" y="120" width="240" height="44" rx="6"/>
+<rect x="63" y="128" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="77" y="145.5" text-anchor="middle">EB</text>
+<text class="t" x="99" y="139">check</text>
+<text class="s" x="99" y="154">rate(1 minute) · 0 retries</text>
+<rect class="n" x="55" y="190" width="240" height="44" rx="6"/>
+<rect x="63" y="198" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="77" y="215.5" text-anchor="middle">EB</text>
+<text class="t" x="99" y="209">rollup</text>
+<text class="s" x="99" y="224">rate(1 hour) · 2 retries</text>
+<rect class="n" x="55" y="300" width="240" height="44" rx="6"/>
+<rect x="63" y="308" width="28" height="28" rx="4" fill="#DD344C"/>
+<text class="ab" x="77" y="325.5" text-anchor="middle">IAM</text>
+<text class="t" x="99" y="319">scheduler role</text>
+<text class="s" x="99" y="334">RunTask + PassRole only</text>
+<rect class="n" x="55" y="390" width="240" height="44" rx="6"/>
+<rect x="63" y="398" width="28" height="28" rx="4" fill="#7AA116"/>
+<text class="ab" x="77" y="415.5" text-anchor="middle">S3</text>
+<text class="t" x="99" y="409">reports bucket</text>
+<text class="s" x="99" y="424">reports/YYYY-MM-DD.csv</text>
+<rect class="n" x="55" y="460" width="240" height="44" rx="6"/>
+<rect x="63" y="468" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="77" y="485.5" text-anchor="middle">CW</text>
+<text class="t" x="99" y="479">CloudWatch Logs</text>
+<text class="s" x="99" y="494">/ecs/uptime-dev/jobs</text>
+<rect class="vpc" x="560" y="80" width="560" height="440" rx="8"/>
+<text class="gl vpcl" x="574" y="99" text-anchor="start">VPC · 10.20.0.0/16 (dev)</text>
+<rect class="pub" x="580" y="110" width="520" height="80" rx="6"/>
+<text class="sl publ" x="592" y="128" text-anchor="start">PUBLIC</text>
+<rect class="priv" x="580" y="205" width="520" height="205" rx="6"/>
+<text class="sl privl" x="1088" y="223" text-anchor="end">PRIVATE · sg jobs</text>
+<rect class="iso" x="580" y="420" width="520" height="85" rx="6"/>
+<text class="sl isol" x="1088" y="438" text-anchor="end">ISOLATED</text>
+<rect class="n" x="620" y="130" width="180" height="44" rx="6"/>
+<rect x="628" y="138" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="642" y="155.5" text-anchor="middle">NAT</text>
+<text class="t" x="664" y="149">NAT gateway</text>
+<text class="s" x="664" y="164">fixed Elastic IP</text>
+<rect class="n dash" x="600" y="240" width="200" height="44" rx="6"/>
+<rect x="608" y="248" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="622" y="265.5" text-anchor="middle">ECS</text>
+<text class="t" x="644" y="259">check task</text>
+<text class="s" x="644" y="274">runs a few seconds</text>
+<rect class="n dash" x="600" y="320" width="200" height="44" rx="6"/>
+<rect x="608" y="328" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="622" y="345.5" text-anchor="middle">ECS</text>
+<text class="t" x="644" y="339">rollup task</text>
+<text class="s" x="644" y="354">summaries + CSV</text>
+<text class="s" x="600" y="386" text-anchor="start">lock uptime-check: a run that starts while</text>
+<text class="s" x="600" y="401" text-anchor="start">another is busy skips its turn</text>
+<rect class="n" x="860" y="445" width="200" height="44" rx="6"/>
+<rect x="868" y="453" width="28" height="28" rx="4" fill="#C925D1"/>
+<text class="ab" x="882" y="470.5" text-anchor="middle">RDS</text>
+<text class="t" x="904" y="464">RDS MySQL</text>
+<text class="s" x="904" y="479">results, summaries</text>
+<rect class="n" x="1380" y="130" width="160" height="44" rx="6"/>
+<rect x="1388" y="138" width="28" height="28" rx="4" fill="#5A6877"/>
+<text class="ab" x="1402" y="155.5" text-anchor="middle">WWW</text>
+<text class="t" x="1424" y="149">Websites</text>
+<text class="s" x="1424" y="164">checked every minute</text>
+<path class="ar" d="M295,142 H570 V272 H600" marker-end="url(#h)"/>
+<text class="al" x="430" y="136" text-anchor="middle">ecs:RunTask</text>
+<path class="ar" d="M295,212 H545 V342 H600" marker-end="url(#h)"/>
+<text class="al" x="430" y="206" text-anchor="middle">ecs:RunTask</text>
+<path class="ar thin" d="M175,300 V270" marker-end="url(#h)"/>
+<text class="al" x="183" y="290" text-anchor="start">used by both schedules</text>
+<path class="ar" d="M700,240 V174" marker-end="url(#h)"/>
+<text class="al" x="708" y="200" text-anchor="start">HTTP(S) checks</text>
+<path class="ar" d="M800,152 H1380" marker-end="url(#h)"/>
+<text class="al" x="1090" y="144" text-anchor="middle">through the internet gateway</text>
+<path class="ar" d="M800,262 H920 V445" marker-end="url(#h)"/>
+<path class="ar" d="M800,342 H900 V445" marker-end="url(#h)"/>
+<text class="al" x="928" y="300" text-anchor="start">3306</text>
+<path class="ar" d="M600,356 H530 V412"/>
+<path class="ar" d="M530,412 H295" marker-end="url(#h)"/>
+<text class="al" x="410" y="404" text-anchor="middle">CSV</text>
+<path class="ar thin" d="M530,412 V482 H295" marker-end="url(#h)"/>
+<text class="al" x="410" y="476" text-anchor="middle">logs (both tasks)</text>
+<rect x="20" y="558" width="12" height="12" rx="3" fill="#E7157B"/>
+<text class="lg" x="38" y="568">Scheduler / logs</text>
+<rect x="172" y="558" width="12" height="12" rx="3" fill="#ED7100"/>
+<text class="lg" x="190" y="568">Compute</text>
+<rect x="261" y="558" width="12" height="12" rx="3" fill="#8C4FFF"/>
+<text class="lg" x="279" y="568">Networking</text>
+<rect x="371" y="558" width="12" height="12" rx="3" fill="#C925D1"/>
+<text class="lg" x="389" y="568">Database</text>
+<rect x="467" y="558" width="12" height="12" rx="3" fill="#7AA116"/>
+<text class="lg" x="485" y="568">Storage</text>
+<rect x="556" y="558" width="12" height="12" rx="3" fill="#DD344C"/>
+<text class="lg" x="574" y="568">IAM</text>
+<rect class="n dash" x="617" y="557" width="22" height="14" rx="3"/>
+<text class="lg" x="645" y="568">Runs, then stops</text>
+<path class="ar" d="M779,564 h26"/>
+<text class="lg" x="811" y="568">Traffic</text>
+<path class="ar thin" d="M882,564 h26"/>
+<text class="lg" x="914" y="568">Control / logs</text>
+</svg>
