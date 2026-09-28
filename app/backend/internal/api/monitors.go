@@ -237,8 +237,14 @@ func (s *Server) getReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	f, err := s.reports.Open(r.Context(), name)
-	if err != nil {
+	if errors.Is(err, reports.ErrNotFound) {
 		writeError(w, http.StatusNotFound, "report not found")
+		return
+	}
+	if err != nil {
+		// For example S3 refusing access. That is our problem, not a
+		// missing report, so it goes to the logs as a server error.
+		s.serverError(w, err)
 		return
 	}
 	defer f.Close()

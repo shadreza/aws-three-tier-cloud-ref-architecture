@@ -19,6 +19,8 @@ import (
 	"syscall"
 	"time"
 
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"gorm.io/gorm"
 
 	"uptime/internal/api"
@@ -90,7 +92,11 @@ func runAPI(ctx context.Context, cfg config.Config, gdb *gorm.DB) error {
 	if cfg.AdminToken == "" {
 		return errors.New("ADMIN_TOKEN must be set")
 	}
-	server := api.NewServer(gdb, reports.Dir{Path: cfg.ReportDir}, cfg.AdminToken, cfg.AllowPrivateTargets)
+	store, err := reportStore(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	server := api.NewServer(gdb, store, cfg.AdminToken, cfg.AllowPrivateTargets)
 	return api.Run(ctx, ":"+cfg.HTTPPort, server.Routes())
 }
 
@@ -136,9 +142,30 @@ func runCheck(ctx context.Context, cfg config.Config, gdb *gorm.DB) error {
 }
 
 func runRollup(ctx context.Context, cfg config.Config, gdb *gorm.DB) error {
+	store, err := reportStore(ctx, cfg)
+	if err != nil {
+		return err
+	}
 	return runLocked(ctx, gdb, "uptime-rollup", func() error {
-		return rollup.Run(ctx, gdb, reports.Dir{Path: cfg.ReportDir}, cfg.RetentionDays, time.Now())
+		return rollup.Run(ctx, gdb, store, cfg.RetentionDays, time.Now())
 	})
+}
+
+// reportStore picks where reports live: a folder locally, S3 on AWS.
+// The AWS SDK finds its credentials by itself (the ECS task role on AWS).
+func reportStore(ctx context.Context, cfg config.Config) (reports.Store, error) {
+	if cfg.ReportBucket == "" {
+		return reports.Dir{Path: cfg.ReportDir}, nil
+	}
+	awsCfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("load AWS config: %w", err)
+	}
+	return reports.S3{
+		Client: s3.NewFromConfig(awsCfg),
+		Bucket: cfg.ReportBucket,
+		Prefix: cfg.ReportPrefix,
+	}, nil
 }
 
 // runDevScheduler stands in for EventBridge Scheduler on your laptop. On AWS
