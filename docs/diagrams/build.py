@@ -281,6 +281,86 @@ def aws_architecture():
     s.save("aws-target-architecture.svg")
 
 
+def aws_network():
+    s = Svg(1240, 700, "Step 02 network in Tokyo: a VPC with public, private and isolated subnets in two "
+                       "Availability Zones. The internet gateway serves the public subnets, a NAT gateway gives "
+                       "the private subnets outbound access, and the isolated subnets have no way out.")
+
+    s.card(455, 14, "client", "WWW", "Internet", "users, checked websites")
+    s.rect("region", 20, 80, 1200, 585, rx=10)
+    s.text("gl reg", 34, 100, "AWS Region · ap-northeast-1 (Tokyo)")
+    s.rect("vpc", 40, 130, 960, 520)
+    s.text("gl vpcl", 54, 124, "VPC · 10.20.0.0/16 (dev)")
+    s.card(455, 108, "network", "IGW", "Internet gateway", "the door to the internet")
+
+    # Zone a has its labels on the left, zone c on the right, so the arrows
+    # in the middle of the picture never cross text.
+    for n, (x, az) in enumerate([(60, "ap-northeast-1a"), (530, "ap-northeast-1c")]):
+        bx = x + 12
+        lx, anchor = (bx + 12, "start") if n == 0 else (bx + 414, "end")
+        s.rect("grp", x, 172, 450, 462)
+        s.text("gt", x + 12 if n == 0 else x + 438, 191, f"Availability Zone {az}", anchor)
+        s.rect("pub", bx, 202, 426, 114, rx=6)
+        s.text("sl publ", lx, 220, f"PUBLIC · 10.20.{n}.0/24", anchor)
+        s.text("s", bx + 414 if n == 0 else bx + 12, 304, "route: 0.0.0.0/0 to internet gateway",
+               "end" if n == 0 else "start")
+        s.rect("priv", bx, 330, 426, 150, rx=6)
+        s.text("sl privl", lx, 348, f"PRIVATE · 10.20.{10 + n}.0/24", anchor)
+        s.text("s", lx, 468, "route: 0.0.0.0/0 to a NAT gateway", anchor)
+        s.rect("iso", bx, 494, 426, 126, rx=6)
+        s.text("sl isol", lx, 512, f"ISOLATED · 10.20.{20 + n}.0/24", anchor)
+        s.text("s", lx, 608, "route: only inside the VPC, no way out", anchor)
+
+    # zone a
+    s.card(90, 236, "network", "NAT", "NAT gateway", "Elastic IP · outbound only")
+    s.card(300, 236, "network", "ALB", "Load balancer", "one node per zone · step 04", w=190)
+    s.card(300, 372, "compute", "ECS", "ECS tasks", "api, check, rollup · step 04", w=190)
+    s.card(300, 540, "database", "RDS", "RDS MySQL", "primary · step 03")
+
+    # zone c
+    s.card(560, 236, "network", "ALB", "Load balancer", "one node per zone · step 04", w=190)
+    s.card(780, 236, "network", "NAT", "NAT gateway", "prod only (per_az)", w=160)
+    s.card(560, 372, "compute", "ECS", "ECS tasks", "api, check, rollup · step 04", w=190)
+    s.card(780, 372, "network", "VPCE", "S3 endpoint", "gateway · free", w=160)
+    s.card(655, 540, "database", "RDS", "RDS standby", "prod only (Multi-AZ)")
+
+    s.card(1030, 372, "storage", "S3", "Amazon S3", "image layers, reports", w=175)
+
+    # internet <-> internet gateway
+    s.arrow("M540,58 V108", both=True)
+    # internet gateway -> load balancer nodes
+    s.arrow("M500,152 V162 H395 V236")
+    s.arrow("M580,152 V162 H655 V236")
+    # NAT gateways -> internet gateway
+    s.arrow("M90,258 H50 V144 H455")
+    s.arrow("M940,258 H990 V144 H625", thin=True)
+    # tasks -> NAT gateway
+    s.arrow("M320,372 V324 H175 V280")
+    s.text("al", 248, 318, "outbound calls", anchor="middle")
+    s.arrow("M740,372 V324 H860 V280", thin=True)
+    # tasks -> S3 endpoint -> S3
+    s.arrow("M750,394 H780")
+    s.arrow("M940,394 H1030")
+    s.text("al", 985, 386, "no NAT fee", anchor="middle")
+    # tasks -> database
+    s.arrow("M395,416 V540")
+    s.text("al", 403, 530, "3306")
+    s.arrow("M740,416 V540")
+    s.text("al", 732, 530, "3306", anchor="end")
+    s.arrow("M470,562 H655", thin=True, both=True)
+    s.text("al", 562, 554, "copy to standby", anchor="middle")
+
+    s.legend(688, [
+        ("cat", "network", "Networking"),
+        ("cat", "compute", "Compute (step 04)"),
+        ("cat", "database", "Database (step 03)"),
+        ("cat", "storage", "Storage"),
+        ("line", False, "Traffic"),
+        ("line", True, "Only in prod"),
+    ])
+    s.save("aws-network.svg")
+
 local_architecture()
 aws_architecture()
+aws_network()
 print("done")
