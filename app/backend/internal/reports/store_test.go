@@ -71,6 +71,9 @@ func TestDir(t *testing.T) {
 		t.Errorf("content = %q, want %q", b, "new")
 	}
 
+	if _, err := d.Open(ctx, "2026-02-01.csv"); err != ErrNotFound {
+		t.Errorf("missing report: got %v, want ErrNotFound", err)
+	}
 	if _, err := d.Open(ctx, "../secret.csv"); err != ErrInvalidName {
 		t.Errorf("Open with bad name: got %v, want ErrInvalidName", err)
 	}

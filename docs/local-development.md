@@ -234,6 +234,8 @@ The defaults work out of the box. To change one, copy `.env.example` to `.env` a
 
 After changing `.env`, run `make up` again.
 
+The Go program reads a few more settings, all listed in `app/backend/internal/config/config.go`. Two of them only matter on AWS and stay empty locally: `DB_TLS_CA` (connect to RDS over TLS and check its certificate) and `REPORT_BUCKET` (keep reports in S3 instead of a folder). Step 03 explains both.
+
 ## When something goes wrong
 
 **`port is already allocated`**

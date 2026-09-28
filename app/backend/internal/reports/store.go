@@ -17,6 +17,9 @@ import (
 // ErrInvalidName is returned for any name that is not YYYY-MM-DD.csv.
 var ErrInvalidName = errors.New("report name must look like 2026-01-31.csv")
 
+// ErrNotFound means there is no report with that name.
+var ErrNotFound = errors.New("report not found")
+
 // Only this exact shape is allowed, so a name can never contain "/" or ".."
 // and escape the reports folder.
 var namePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}\.csv$`)
@@ -32,7 +35,8 @@ type Store interface {
 	Save(ctx context.Context, name string, data []byte) error
 	// List returns report names, newest first.
 	List(ctx context.Context) ([]string, error)
-	// Open returns the report's contents. The caller must close it.
+	// Open returns the report's contents, or ErrNotFound. The caller must
+	// close it.
 	Open(ctx context.Context, name string) (io.ReadCloser, error)
 }
 
@@ -96,6 +100,9 @@ func (d Dir) Open(ctx context.Context, name string) (io.ReadCloser, error) {
 		return nil, ErrInvalidName
 	}
 	f, err := os.Open(filepath.Join(d.Path, name))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, fmt.Errorf("open report %s: %w", name, err)
 	}

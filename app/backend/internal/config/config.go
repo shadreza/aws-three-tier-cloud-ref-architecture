@@ -18,6 +18,9 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	// Path to a CA bundle. When set, the connection to MySQL uses TLS and
+	// checks the server certificate against it (RDS on AWS).
+	DBTLSCA string
 
 	HTTPPort   string
 	AdminToken string
@@ -26,7 +29,10 @@ type Config struct {
 	CheckConcurrency    int
 	AllowPrivateTargets bool
 
+	// Reports go to S3 when ReportBucket is set, otherwise to ReportDir.
 	ReportDir     string
+	ReportBucket  string
+	ReportPrefix  string
 	RetentionDays int
 
 	// Only used by the dev-scheduler command.
@@ -43,6 +49,7 @@ func Load() (Config, error) {
 		DBUser:     getString("DB_USER", "uptime"),
 		DBPassword: getString("DB_PASSWORD", ""),
 		DBName:     getString("DB_NAME", "uptime"),
+		DBTLSCA:    getString("DB_TLS_CA", ""),
 
 		HTTPPort:   getString("HTTP_PORT", "8080"),
 		AdminToken: getString("ADMIN_TOKEN", ""),
@@ -52,6 +59,8 @@ func Load() (Config, error) {
 		AllowPrivateTargets: getBool("ALLOW_PRIVATE_TARGETS", false, &errs),
 
 		ReportDir:     getString("REPORT_DIR", "./reports"),
+		ReportBucket:  getString("REPORT_BUCKET", ""),
+		ReportPrefix:  getString("REPORT_PREFIX", "reports/"),
 		RetentionDays: getInt("RETENTION_DAYS", 30, &errs),
 
 		DevCheckEvery:  getDuration("DEV_CHECK_EVERY", time.Minute, &errs),
