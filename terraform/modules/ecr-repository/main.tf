@@ -4,9 +4,9 @@ variable "name" {
 }
 
 variable "keep_images" {
-  description = "How many tagged images to keep. Older ones are deleted."
+  description = "How many images to keep. Older ones are deleted, so you cannot roll back further than this."
   type        = number
-  default     = 20
+  default     = 50
 }
 
 variable "force_delete" {

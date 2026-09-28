@@ -125,15 +125,14 @@ resource "aws_iam_role" "api" {
 }
 
 data "aws_iam_policy_document" "api_reports" {
+  # Not limited to a prefix on purpose: S3 only answers "no such key" (404)
+  # to callers that may list the bucket. With a prefix condition, a missing
+  # report would come back as "access denied" and the API would return 500.
+  # The bucket holds nothing but reports.
   statement {
     sid       = "ListReports"
     actions   = ["s3:ListBucket"]
     resources = [local.db.reports_bucket_arn]
-    condition {
-      test     = "StringLike"
-      variable = "s3:prefix"
-      values   = ["reports/*"]
-    }
   }
   statement {
     sid       = "ReadReports"
@@ -249,6 +248,11 @@ module "api" {
   min_tasks          = var.api_min_tasks
   max_tasks          = var.api_max_tasks
 
+  # IAM changes take a few seconds to reach every AWS service. Without this,
+  # the first tasks of a new environment can start before the execution role
+  # may read the secrets, and fail.
+  depends_on = [aws_iam_role_policy.execution_secrets, aws_iam_role_policy_attachment.execution_managed]
+
   # Two containers from the same image. migrate runs first and exits; api only
   # starts if migrate succeeded. See ADR 0012.
   container_definitions = jsonencode([
@@ -274,6 +278,8 @@ module "api" {
 module "check_task" {
   source = "../../modules/ecs-task"
 
+  depends_on = [aws_iam_role_policy.execution_secrets, aws_iam_role_policy_attachment.execution_managed]
+
   family             = "${local.name}-check"
   cpu                = var.job_cpu
   memory             = var.job_memory
@@ -290,6 +296,8 @@ module "check_task" {
 
 module "rollup_task" {
   source = "../../modules/ecs-task"
+
+  depends_on = [aws_iam_role_policy.execution_secrets, aws_iam_role_policy_attachment.execution_managed]
 
   family             = "${local.name}-rollup"
   cpu                = var.job_cpu

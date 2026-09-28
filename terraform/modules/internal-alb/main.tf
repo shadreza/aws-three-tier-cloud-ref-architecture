@@ -98,6 +98,10 @@ output "dns_name" {
 
 output "target_group_arn" {
   value = aws_lb_target_group.api.arn
+
+  # ECS refuses to attach a service to a target group that no listener uses
+  # yet, so anything that uses this output waits for the listener.
+  depends_on = [aws_lb_listener.http]
 }
 
 output "target_group_arn_suffix" {
