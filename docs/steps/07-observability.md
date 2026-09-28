@@ -153,13 +153,14 @@ You should see about 60 runs per hour and the most websites that were down at on
 
 ## 5. Break it on purpose
 
-**a) Take the API down.** In the ECS console, update the service `uptime-dev-api` to 0 desired tasks. The app in the browser shows errors. Within about 4 minutes, `api-no-healthy-tasks` fires (after step 8 you have that alarm; with only the hand-built one, watch `HealthyHostCount` drop to 0 in the target group's **Monitoring** tab). Set it back to 1 in the console. An apply of the `compute` stack would **not** fix this: the service module tells Terraform to ignore `desired_count`, because in prod autoscaling owns that number. Knowing which tool owns which setting is part of running a system.
+**a) Take the API down.** In the ECS console, update the service `uptime-dev-api` to 0 desired tasks. The app in the browser shows errors. Within about 4 minutes, `api-no-healthy-tasks` fires (after section 6 you have that alarm; with only the hand-built one, watch `HealthyHostCount` drop to 0 in the target group's **Monitoring** tab). Set it back to 1 in the console. An apply of the `compute` stack would **not** fix this: the service module tells Terraform to ignore `desired_count`, because in prod autoscaling owns that number. Knowing which tool owns which setting is part of running a system.
 
 **b) Get blocked by the WAF.** Run the attack request from step 05 (6c) ten times. On the dashboard (after section 6), the **WAF** widget shows `BlockedRequests`. Nothing alarms, and that is a choice: blocked attacks are the WAF doing its job, not an incident.
 
-**c) Create an error.** Delete a monitor that does not exist:
+**c) Create an error.** Delete a monitor that does not exist. Get the admin token first, on your laptop:
 
 ```bash
+TOKEN=$(aws secretsmanager get-secret-value --secret-id uptime-dev/admin-token --query SecretString --output text)
 curl -s -X DELETE https://dxxxx.cloudfront.net/api/monitors/999999 -H "Authorization: Bearer $TOKEN"; echo
 ```
 

@@ -75,7 +75,7 @@ pie showData
     "RDS MySQL" : 21.0
     "Fargate (API + jobs)" : 18.1
     "WAF" : 9.1
-    "Everything else" : 3.6
+    "Everything else" : 4.2
 ```
 
 The NAT gateway is the biggest single cost of a quiet environment. It is also the first thing to delete when you stop for the day.
