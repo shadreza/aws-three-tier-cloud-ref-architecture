@@ -1,0 +1,84 @@
+# Deploy one environment: push the image built by deploy.yml to that
+# environment's ECR, choose it in SSM, apply the compute stack, upload the web
+# app. Called by deploy.yml, once per environment.
+name: deploy-environment
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    # Never two deploys of the same environment at once; a newer one waits.
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ENV: ${{ inputs.environment }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-image
+          path: /tmp
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: app/web/dist
+
+      - name: log in to AWS (OIDC, no stored keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: push the image
+        run: |
+          registry="$(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-northeast-1.amazonaws.com"
+          repo="$registry/uptime-$ENV/backend"
+          aws ecr get-login-password | docker login --username AWS --password-stdin "$registry"
+          docker load --input /tmp/backend.tar
+          docker tag "uptime-backend:$TAG" "$repo:$TAG"
+          # Tags are immutable. A re-run of the same commit finds the tag
+          # already there, which is fine: it is the same image.
+          if aws ecr describe-images --repository-name "uptime-$ENV/backend" --image-ids "imageTag=$TAG" >/dev/null 2>&1; then
+            echo "$repo:$TAG is already in ECR"
+          else
+            docker push "$repo:$TAG"
+          fi
+
+      - name: choose the image
+        run: make image-use env="$ENV" tag="$TAG"
+
+      - name: terraform plan (compute)
+        run: make tf-plan env="$ENV" stack=compute
+
+      - name: terraform apply (compute)
+        run: make tf-apply env="$ENV" stack=compute
+
+      - name: wait until the API service is stable
+        run: aws ecs wait services-stable --cluster "uptime-$ENV" --services "uptime-$ENV-api"
+
+      - name: upload the web app
+        run: make web-upload env="$ENV"
+
+      - name: summary
+        run: |
+          {
+            echo "### Deployed $TAG to $ENV"
+            make -s tf-output env="$ENV" stack=edge name=url
+          } >> "$GITHUB_STEP_SUMMARY"

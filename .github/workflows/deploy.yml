@@ -1,0 +1,87 @@
+# Every push to master: build once, then deploy the same image and web files
+# to dev, then staging, then prod. Each environment is a GitHub environment
+# with its own AWS role; prod waits for a person to approve it.
+#
+# Setup (once): docs/steps/08-ci-cd.md, section 4.
+name: deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "app/**"
+      - "terraform/stacks/compute/**"
+      - "terraform/modules/**"
+      - "terraform/envs/*/compute.tfvars"
+      - ".github/workflows/deploy.yml"
+      - ".github/workflows/deploy-environment.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: tag
+        run: echo "tag=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: build the backend image
+        run: |
+          docker buildx build --platform linux/arm64 --provenance=false \
+            -t uptime-backend:${{ steps.tag.outputs.tag }} \
+            --output type=docker,dest=/tmp/backend.tar app/backend
+
+      - name: build the web app
+        run: make web-build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-image
+          path: /tmp/backend.tar
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: app/web/dist
+          retention-days: 7
+
+  dev:
+    needs: build
+    uses: ./.github/workflows/deploy-environment.yml
+    with:
+      environment: dev
+      tag: ${{ needs.build.outputs.tag }}
+    permissions:
+      contents: read
+      id-token: write
+
+  staging:
+    needs: [build, dev]
+    if: vars.DEPLOY_STAGING == 'true'
+    uses: ./.github/workflows/deploy-environment.yml
+    with:
+      environment: staging
+      tag: ${{ needs.build.outputs.tag }}
+    permissions:
+      contents: read
+      id-token: write
+
+  prod:
+    needs: [build, dev, staging]
+    if: always() && needs.dev.result == 'success' && needs.staging.result != 'failure' && vars.DEPLOY_PROD == 'true'
+    uses: ./.github/workflows/deploy-environment.yml
+    with:
+      environment: prod
+      tag: ${{ needs.build.outputs.tag }}
+    permissions:
+      contents: read
+      id-token: write
