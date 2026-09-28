@@ -32,16 +32,7 @@ Want the slow, step-by-step version? Read **[docs/local-development.md](docs/loc
 
 ## How the pieces fit
 
-```mermaid
-flowchart LR
-    browser([Your browser]) --> web[web<br/>React app]
-    web -- "/api/*" --> api[api<br/>Go]
-    api --> db[(mysql)]
-    scheduler[scheduler<br/>check + rollup jobs] --> db
-    scheduler -- "visits every monitor" --> internet([Websites on the internet])
-    scheduler --> reports[(daily CSV reports)]
-    api --> reports
-```
+<p align="center"><img src="docs/diagrams/local-architecture.svg" alt="The app on your laptop: browser, web, api, scheduler, mysql and the websites being checked" width="100%"></p>
 
 Each box is one Docker container locally. Later, each box becomes an AWS service:
 
@@ -55,6 +46,12 @@ Each box is one Docker container locally. Later, each box becomes an AWS service
 | `migrate` | one-off ECS task before each deploy |
 
 [docs/app/how-it-works.md](docs/app/how-it-works.md) walks through what happens inside, like the life of a single check.
+
+## Where we are heading
+
+This is the AWS setup the steps build, piece by piece. Don't worry if the names mean nothing yet. Each one gets its own step.
+
+<p align="center"><img src="docs/diagrams/aws-target-architecture.svg" alt="Target AWS architecture: CloudFront and WAF in front, a load balancer in public subnets, ECS Fargate in private subnets and RDS MySQL in isolated subnets" width="100%"></p>
 
 ## What's in this repo
 

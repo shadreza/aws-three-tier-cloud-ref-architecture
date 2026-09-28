@@ -12,6 +12,27 @@ A few simple rules so the history stays easy to read. This repo is also learning
 4. Open a pull request into `master`.
 5. Merge it once it is reviewed and `make test` passes.
 
+```mermaid
+%%{init: {"gitGraph": {"mainBranchName": "master"}}}%%
+gitGraph
+    commit id: "initial repo setup"
+    branch step-01/initial-application
+    checkout step-01/initial-application
+    commit id: "feat(api)"
+    commit id: "feat(web)"
+    commit id: "feat(docker)"
+    commit id: "docs"
+    checkout master
+    merge step-01/initial-application tag: "step-01-initial-application"
+    branch step-02/aws-network
+    checkout step-02/aws-network
+    commit id: "vpc"
+    commit id: "subnets"
+    commit id: "nat"
+    checkout master
+    merge step-02/aws-network tag: "step-02-aws-network"
+```
+
 Nobody pushes straight to `master`.
 
 ```bash

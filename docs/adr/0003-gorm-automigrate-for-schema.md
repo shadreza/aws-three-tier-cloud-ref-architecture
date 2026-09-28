@@ -16,6 +16,21 @@ We use GORM as the ORM on MySQL. The tables have to be created and updated someh
 
 AutoMigrate, run by the `migrate` command. Locally that is its own Compose service; on AWS it will be a one-off ECS task before each deploy.
 
+```mermaid
+flowchart LR
+    structs["Go structs<br/>models.go"] --> migrate["uptime migrate<br/>GORM AutoMigrate"]
+    migrate -- "adds missing tables,<br/>columns, indexes" --> db[("mysql")]
+    migrate -. "never renames<br/>or drops" .-> db
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class structs,migrate compute
+    class db database
+```
+
 ## Consequences
 
 - Adding a column is just adding a struct field.

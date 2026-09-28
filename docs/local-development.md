@@ -39,6 +39,23 @@ The first time takes a few minutes. Docker downloads MySQL, Go and Node images a
 
 Here is what starts, in order:
 
+```mermaid
+flowchart LR
+    mysql["1. mysql<br/>starts and becomes healthy"] --> migrate["2. migrate<br/>creates tables, then exits"]
+    migrate --> api["3. api<br/>port 8080"]
+    migrate --> scheduler["4. scheduler<br/>jobs on a timer"]
+    api --> web["5. web<br/>port 5173"]
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class mysql database
+    class migrate,api,web compute
+    class scheduler jobs
+```
+
 1. **mysql**: the database. The others wait until it is healthy.
 2. **migrate**: creates the tables, then stops. That is normal. It is supposed to exit.
 3. **api**: the Go API on port 8080.
@@ -52,6 +69,12 @@ make ps
 ```
 
 You should see `mysql`, `api`, `scheduler` and `web` with status `Up` (or `running`). `migrate` is not listed because it already finished.
+
+This is how the containers are wired. Only three of them (web, api, mysql) open a port on your laptop. The scheduler needs none, because nobody calls it: it calls others.
+
+<p align="center"><img src="diagrams/local-architecture.svg" alt="The app on your laptop: browser, web, api, scheduler, mysql and the websites being checked" width="100%"></p>
+
+Inside Docker, containers find each other by name (`api`, `mysql`). From your laptop you use `localhost` and the port.
 
 Ask the API if it is alive:
 
@@ -152,6 +175,37 @@ make down
 ```
 
 Your data is kept. `make up` brings everything back as you left it.
+
+That works because Docker keeps two kinds of things apart:
+
+```mermaid
+flowchart LR
+    subgraph containers["Containers: removed by make down"]
+        c1["mysql"]
+        c2["api"]
+        c3["scheduler"]
+        c4["web"]
+    end
+    subgraph volumes["Volumes: kept by make down, deleted by make reset"]
+        v1[("mysql-data<br/>your monitors and results")]
+        v2[("reports<br/>the CSV files")]
+        v3[("web-node-modules<br/>frontend packages")]
+    end
+    c1 --- v1
+    c2 --- v2
+    c3 --- v2
+    c4 --- v3
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class c1 database
+    class c2,c4 compute
+    class c3 jobs
+    class v1,v2,v3 storage
+```
 
 To start completely fresh (this **deletes** the database and reports):
 

@@ -22,6 +22,25 @@ Uptime monitor. Every part has a job:
 - user-supplied URLs create a real security problem (SSRF), which gives the threat model something concrete
 - everyone understands "is the site up?" without explanation
 
+```mermaid
+flowchart LR
+    check["check job calls<br/>the internet"] --> nat["needs a NAT gateway<br/>(step 02)"]
+    rollup["rollup writes<br/>CSV files"] --> s3["needs S3<br/>(step 06)"]
+    urls["users choose<br/>the URLs"] --> ssrf["needs an SSRF guard<br/>(threat model)"]
+    api["frontend needs<br/>an API"] --> alb["needs a load balancer<br/>(step 04)"]
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class check,rollup jobs
+    class nat,alb network
+    class s3 storage
+    class ssrf security
+    class urls,api compute
+```
+
 ## Consequences
 
 - We must guard against SSRF from day one (`internal/netguard`).

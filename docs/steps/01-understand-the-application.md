@@ -23,7 +23,9 @@ Read the top of the [README](../../README.md), down to **How the pieces fit**.
 
 The whole app in one sentence: **you give it web addresses, it checks them every minute, and shows you which ones are up.**
 
-Look at the diagram and find these four pieces:
+<p align="center"><img src="../diagrams/local-architecture.svg" alt="The app on your laptop: browser, web, api, scheduler, mysql and the websites being checked" width="100%"></p>
+
+Find the four pieces:
 
 | Piece | What it does | Where the code is |
 |---|---|---|
@@ -61,6 +63,31 @@ This is the most important part of the step. Read [how-it-works.md, "Life of one
 | The web app asks for the list | `app/web/src/api.ts` | `listMonitors` |
 | The API answers | `app/backend/internal/api/monitors.go` | `listMonitors` |
 | The page shows it | `app/web/src/pages/MonitorsPage.tsx` | the table |
+
+The same journey as a picture. Each box is a file you can open:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant M as main.go
+    participant L as lock.go
+    participant C as checker.go
+    participant N as netguard.go
+    participant DB as mysql
+    participant P as MonitorsPage.tsx
+    participant A as monitors.go
+    M->>L: timer fired, take the lock
+    L->>DB: GET_LOCK uptime-check
+    M->>C: RunOnce
+    C->>DB: load monitors
+    C->>N: is this IP allowed?
+    N-->>C: yes
+    C->>C: visit the website
+    C->>DB: save CheckResult rows
+    P->>A: GET /api/monitors (through api.ts)
+    A->>DB: read monitors and results
+    A-->>P: JSON
+```
 
 Now watch it happen live. In one terminal:
 
@@ -121,6 +148,21 @@ Open **Our own API**. The newest check failed with `blocked: ... private or inte
 docker compose stop mysql
 curl -i http://localhost:8080/api/health
 curl -i http://localhost:8080/api/ready
+```
+
+```mermaid
+flowchart LR
+    health["/api/health"] --> ok["200<br/>process is alive"]
+    ready["/api/ready"] -- "ping" --> db[("mysql<br/>stopped")]
+    db -. "no answer" .-> no["503<br/>cannot do real work"]
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class health,ready compute
+    class db database
 ```
 
 `health` still answers `200` but `ready` answers `503`. The process is alive, but it cannot do real work. In step 04, the load balancer will use `health`. Read [why](../app/how-it-works.md#health-and-ready).
