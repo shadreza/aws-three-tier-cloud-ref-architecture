@@ -206,7 +206,7 @@ Wait until **Last modified** shows a date instead of **Deploying** (about 5 minu
 
 ## 5. Test it
 
-Open `https://dxxxx.cloudfront.net` in your browser (from the distribution's page). You should see the Uptime app with the monitors you seeded in step 04, and their status updating. Click a monitor, then reload the page on `/monitors/1`: it still loads, thanks to the function.
+Open `https://dxxxx.cloudfront.net` in your browser (from the distribution's page). You should see the Uptime app with the monitors you seeded in step 04, showing the results of the check you ran by hand there. Nothing runs checks on a schedule yet; from step 06 on they update by themselves. Click a monitor, then reload the page on `/monitors/1`: it still loads, thanks to the function.
 
 From your terminal:
 
