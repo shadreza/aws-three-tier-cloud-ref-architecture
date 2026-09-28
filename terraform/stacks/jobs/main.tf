@@ -70,10 +70,12 @@ resource "aws_iam_role" "scheduler" {
 }
 
 data "aws_iam_policy_document" "scheduler" {
-  # Start only our two task definitions (any revision), only in our cluster.
+  # Start only our two task definitions, only in our cluster. The schedule
+  # names the task definition without a revision, so allow that form and the
+  # revision it resolves to.
   statement {
     actions   = ["ecs:RunTask"]
-    resources = [for j in local.jobs : "${j.task_definition}:*"]
+    resources = flatten([for j in local.jobs : [j.task_definition, "${j.task_definition}:*"]])
     condition {
       test     = "ArnEquals"
       variable = "ecs:cluster"
