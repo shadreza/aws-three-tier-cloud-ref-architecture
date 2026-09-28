@@ -3,6 +3,8 @@ package db
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"log/slog"
@@ -22,7 +24,10 @@ import (
 // Open connects to MySQL. It tries a few times because the database can take
 // a little while to accept connections when it has just started.
 func Open(ctx context.Context, cfg config.Config) (*gorm.DB, error) {
-	dsn := buildDSN(cfg)
+	dsn, err := buildDSN(cfg)
+	if err != nil {
+		return nil, err
+	}
 	gormLogger := logger.New(log.New(os.Stdout, "", log.LstdFlags), logger.Config{
 		SlowThreshold:             500 * time.Millisecond,
 		LogLevel:                  logger.Warn,
@@ -63,7 +68,7 @@ func Migrate(gdb *gorm.DB) error {
 
 // buildDSN uses the driver's own formatter so passwords with odd characters
 // (RDS generates those) are escaped correctly.
-func buildDSN(cfg config.Config) string {
+func buildDSN(cfg config.Config) (string, error) {
 	c := mysql.NewConfig()
 	c.User = cfg.DBUser
 	c.Passwd = cfg.DBPassword
@@ -72,5 +77,28 @@ func buildDSN(cfg config.Config) string {
 	c.DBName = cfg.DBName
 	c.ParseTime = true
 	c.Loc = time.UTC
-	return c.FormatDSN()
+
+	if cfg.DBTLSCA != "" {
+		// RDS certificates are signed by Amazon's own CA, which is not in the
+		// usual trust store, so we load its bundle. Checking the name as well
+		// means a machine pretending to be the database is refused.
+		pem, err := os.ReadFile(cfg.DBTLSCA)
+		if err != nil {
+			return "", fmt.Errorf("read DB_TLS_CA: %w", err)
+		}
+		roots := x509.NewCertPool()
+		if !roots.AppendCertsFromPEM(pem) {
+			return "", fmt.Errorf("DB_TLS_CA %s has no certificates", cfg.DBTLSCA)
+		}
+		err = mysql.RegisterTLSConfig("custom", &tls.Config{
+			RootCAs:    roots,
+			ServerName: cfg.DBHost,
+			MinVersion: tls.VersionTLS12,
+		})
+		if err != nil {
+			return "", fmt.Errorf("register TLS config: %w", err)
+		}
+		c.TLSConfig = "custom"
+	}
+	return c.FormatDSN(), nil
 }
