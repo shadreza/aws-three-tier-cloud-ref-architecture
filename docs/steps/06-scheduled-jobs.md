@@ -148,7 +148,7 @@ The logs:
 aws logs tail /ecs/uptime-dev/jobs --since 5m --format short
 ```
 
-You should see `check finished` with `"monitors":2,"up":1,"down":1` every minute.
+You should see `check finished` every minute, with `monitors` equal to the number of monitors you have (2 after the seed, plus any you added in step 05) and `up` and `down` adding up to it. The seeded `Broken on purpose` monitor is always down.
 
 Open the app through CloudFront. The monitors now update by themselves, and the 24-hour uptime column fills in.
 
@@ -211,7 +211,7 @@ aws logs tail /ecs/uptime-dev/jobs --since 2h --format short | grep -E 'day summ
 aws s3 ls s3://uptime-dev-reports-ACCOUNT/reports/
 ```
 
-You should see `day summarised` twice (yesterday and today) and `old results deleted`, and today's CSV in the bucket, also listed on the app's **Reports** page.
+You should see `day summarised` for today and `old results deleted`. For yesterday you see either `day summarised` too, or `no results for day, nothing to summarise` if no checks ran yesterday. Days are UTC days, so before 09:00 in Tokyo "today" in the report name is still yesterday's date on your clock. The CSV is in the bucket and listed on the app's **Reports** page.
 
 ### 8.3 Pause and resume
 
@@ -233,7 +233,7 @@ Set `schedules_enabled = false` in `envs/dev/jobs.tfvars`, plan and apply. You s
 2. Start a task with a more powerful role than intended (any role that trusts ECS tasks), and use the task to act with that role's permissions.
 3. About 20 to 60 seconds later. Fargate has to find capacity, create the network interface, pull the image and read the secrets before the command runs.
 4. A missed check is replaced a minute later; retrying it would only pile up tasks. A missed rollup would leave today's summary out of date for an hour, and rollup is safe to repeat.
-5. The Scheduler metrics in CloudWatch, `TargetErrorCount` and `InvocationDroppedCount`. Step 07 puts an alarm on them.
+5. The Scheduler metrics in CloudWatch, such as `TargetErrorCount` and `InvocationDroppedCount`. Step 07 puts an alarm on `TargetErrorCount`, and a second one that notices when checks stop finishing for any reason.
 6. The MySQL lock `uptime-check`: the second run sees the lock is taken and exits without doing anything. The one run that works saves its results in one insert.
 
 </details>
