@@ -15,6 +15,7 @@ on:
       - "terraform/stacks/compute/**"
       - "terraform/modules/**"
       - "terraform/envs/*/compute.tfvars"
+      - "terraform/envs/*/common.tfvars"
       - ".github/workflows/deploy.yml"
       - ".github/workflows/deploy-environment.yml"
   workflow_dispatch:
@@ -80,7 +81,7 @@ jobs:
 
   prod:
     needs: [build, dev, staging]
-    if: always() && needs.dev.result == 'success' && needs.staging.result != 'failure' && vars.DEPLOY_PROD == 'true'
+    if: always() && needs.dev.result == 'success' && (needs.staging.result == 'success' || needs.staging.result == 'skipped') && vars.DEPLOY_PROD == 'true'
     uses: ./.github/workflows/deploy-environment.yml
     with:
       environment: prod

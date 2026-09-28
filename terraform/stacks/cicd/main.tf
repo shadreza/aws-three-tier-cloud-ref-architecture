@@ -104,10 +104,13 @@ data "aws_iam_policy_document" "deploy" {
     sid       = "ListState"
     actions   = ["s3:ListBucket"]
     resources = [local.state_arn]
+    # env:/ is where the S3 backend looks for workspaces. terraform init and
+    # every remote state read list it, even though we only use the default
+    # workspace.
     condition {
       test     = "StringLike"
       variable = "s3:prefix"
-      values   = ["${var.environment}/*"]
+      values   = ["${var.environment}/*", "env:/*"]
     }
   }
   statement {
