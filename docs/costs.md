@@ -31,6 +31,8 @@ Everything in this repo runs in **Tokyo (`ap-northeast-1`)**. This page lists wh
 | CloudWatch Logs | data sent in | $0.76 / GB |
 | | data kept | $0.033 / GB-month |
 | CloudWatch alarms | each standard alarm | $0.10 / month |
+| CloudWatch custom metrics | each metric (ours come from log lines) | $0.30 / month |
+| CloudWatch dashboards | the first 3 in an account | free |
 | ECR | images stored | $0.10 / GB-month |
 | S3 Standard | data stored | $0.025 / GB-month |
 | CloudFront | first 1 TB out and 10 million requests each month | free |
@@ -55,10 +57,10 @@ What the finished app (after step 08) costs to leave running for a month.
 | Rollup job, every hour | $0.15 | $0.15 | |
 | RDS MySQL + 20 GB storage | $21.01 (`db.t4g.micro`) | $77.06 (`db.t4g.small`, Multi-AZ) | a standby in the second zone |
 | Secrets Manager (2 secrets + calls) | $1.25 | $1.25 | |
-| CloudWatch Logs + 8 alarms | $1.30 | $2.00 | |
+| CloudWatch: logs, 10 alarms, 3 custom metrics | $2.40 | $3.10 | more log data |
 | WAF (1 web ACL, 4 rules) | $9.10 | $9.10 | |
 | ECR, S3, CloudFront, Scheduler | under $0.50 | under $1.00 | |
-| **Total, about** | **$119 / month** | **$252 / month** | |
+| **Total, about** | **$120 / month** | **$253 / month** | |
 | **Per hour, about** | **$0.16** | **$0.35** | |
 
 Optional: a domain in Route 53 adds $0.50 a month for the hosted zone, plus about $15 a year to register a `.com` name.
@@ -73,7 +75,7 @@ pie showData
     "RDS MySQL" : 21.0
     "Fargate (API + jobs)" : 18.1
     "WAF" : 9.1
-    "Everything else" : 2.5
+    "Everything else" : 4.2
 ```
 
 The NAT gateway is the biggest single cost of a quiet environment. It is also the first thing to delete when you stop for the day.
@@ -103,10 +105,10 @@ Each step adds pieces. This is the running total per hour while everything from 
 | 04 containers | internal load balancer, 1 API task, ECR | $0.038 | $0.14 |
 | 05 edge | CloudFront (free tier), WAF | $0.012 | $0.15 |
 | 06 jobs | check task every minute, rollup every hour | $0.013 | $0.16 |
-| 07 observability | alarms, log data | $0.002 | $0.16 |
+| 07 observability | 10 alarms, 3 custom metrics, log data | $0.003 | $0.16 |
 | 08 CI/CD | GitHub Actions (free for public repos), IAM roles (free) | $0 | $0.16 |
 
-A three-hour study session at the end of the track costs about $0.50. A dev environment forgotten for a month costs about $119. **Every step ends with a clean-up section. Do it.**
+A three-hour study session at the end of the track costs about $0.50. A dev environment forgotten for a month costs about $120. **Every step ends with a clean-up section. Do it.**
 
 ## Ways to spend less
 
