@@ -339,7 +339,7 @@ Watch the logs from your laptop:
 aws logs tail /ecs/uptime-dev-byhand/api --follow
 ```
 
-You should see one JSON line per request, including the load balancer's health checks every 15 seconds from two IPs (one load balancer node per zone). Press Ctrl+C to stop.
+You should see `database tables are up to date` from the `migrate` container, `api listening`, and one JSON line per request you made with `curl`, with `method`, `path`, `status` and `duration_ms`. The load balancer's health checks (every 15 seconds, from one load balancer node per zone) are not logged: `logRequests` in `internal/api/server.go` skips `/api/health` so they do not drown out everything else. Press Ctrl+C to stop.
 
 ## 6. Break it on purpose
 
