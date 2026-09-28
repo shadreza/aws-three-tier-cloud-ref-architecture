@@ -28,3 +28,4 @@ An ADR is a short note about one decision: what we chose, what else we looked at
 | [0013](0013-cloudfront-vpc-origin-and-waf.md) | CloudFront in front, S3 web app, VPC origin for the API, WAF | Accepted |
 | [0014](0014-eventbridge-scheduler-runs-ecs-tasks.md) | EventBridge Scheduler starts a fresh ECS task for each job run | Accepted |
 | [0015](0015-cloudwatch-alarms-from-metrics-and-logs.md) | CloudWatch only: alarms on AWS metrics and on metrics from JSON logs | Accepted |
+| [0016](0016-github-actions-oidc-deploys.md) | GitHub Actions with OIDC: build once, deploy the same build everywhere | Accepted |
