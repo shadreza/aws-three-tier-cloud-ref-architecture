@@ -67,3 +67,13 @@ output "run_task_network" {
   description = "Paste into aws ecs run-task --network-configuration to start a one-off job."
   value       = "awsvpcConfiguration={subnets=[${join(",", local.net.private_subnet_ids)}],securityGroups=[${local.sec.jobs_sg_id}],assignPublicIp=DISABLED}"
 }
+
+# Without the revision number, RunTask always uses the newest revision, so
+# the schedules do not need to change on every deploy.
+output "check_task_definition_arn_latest" {
+  value = module.check_task.arn_without_revision
+}
+
+output "rollup_task_definition_arn_latest" {
+  value = module.rollup_task.arn_without_revision
+}
