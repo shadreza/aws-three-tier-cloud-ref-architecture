@@ -4,7 +4,9 @@ dist/
 
 # local files
 .env
-reports/
+# report files written by a local run (not the Go package internal/reports)
+/reports/
+/app/backend/reports/
 
 # editors and OS
 .idea/
