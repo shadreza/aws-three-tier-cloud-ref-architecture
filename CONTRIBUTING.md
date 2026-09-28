@@ -55,13 +55,13 @@ step-<NN>/<what-the-step-builds>
 |---|---|
 | 1 | `step-01/initial-application` |
 | 2 | `step-02/aws-network` |
-| 3 | `step-03/security-and-database` |
+| 3 | `step-03/database-and-secrets` |
 | 4 | `step-04/containers-on-ecs` |
-| 5 | `step-05/domain-https-cdn` |
+| 5 | `step-05/cdn-and-waf` |
 | 6 | `step-06/scheduled-jobs` |
 | 7 | `step-07/observability` |
 | 8 | `step-08/ci-cd` |
-| 9 | `step-09/terraform-rebuild` |
+| 9 | `step-09/rebuild-and-replicate` |
 
 Work that is not a whole step gets a branch named after what it does:
 
@@ -106,7 +106,8 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 | `web` | React frontend |
 | `docker` | Dockerfiles, `compose.yaml` |
 | `make` | Makefile |
-| `network`, `ecs`, `rds`, `edge`... | AWS parts (from phase 2 on) |
+| `network`, `security`, `rds`, `ecs`, `edge`, `jobs`, `observability`, `cicd` | AWS and Terraform parts (from step 02 on) |
+| `terraform` | Terraform layout, Makefile targets, shared settings |
 | `docs` | when the type is not `docs` but the change is |
 
 **Subject line rules:**
@@ -174,3 +175,28 @@ So anyone can jump to the end of any step:
 ```bash
 git switch --detach step-01-initial-application
 ```
+
+## Checkpoints
+
+A tag marks the commit where a step was first merged, and never moves. A **checkpoint branch** marks the end of a step including later fixes to that step. Learners start each step from the checkpoint of the one before. See [docs/steps](docs/steps/README.md#checkpoints-the-end-of-each-step) for why.
+
+After a step's pull request is merged:
+
+```bash
+git switch master
+git pull
+git tag -a step-02-aws-network -m "Step 02: AWS network"
+git branch checkpoint/step-02 master
+git push origin step-02-aws-network checkpoint/step-02
+```
+
+When a fix for an earlier step lands on `master` later, move that step's checkpoint forward with only the fix:
+
+```bash
+git switch checkpoint/step-02
+git cherry-pick <fix commit>
+make test
+git push origin checkpoint/step-02
+```
+
+Checkpoint branches are never force-pushed and never get work from a later step.

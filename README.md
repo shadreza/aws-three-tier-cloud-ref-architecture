@@ -11,7 +11,7 @@ We picked it because it needs every part of a normal production system:
 - a **database** that keeps the data
 - a **scheduled job** that runs by itself and calls the internet
 
-Right now the app runs on your laptop with Docker. The AWS part comes next, one step at a time (see [The steps](#the-steps)).
+The app runs on your laptop with Docker. Steps 02 to 09 then build the AWS setup for it, one layer at a time, first by hand and then in Terraform (see [The steps](#the-steps)).
 
 **New here? Start with [Step 01: Understand the application](docs/steps/01-understand-the-application.md).**
 
@@ -59,8 +59,14 @@ This is the AWS setup the steps build, piece by piece. Don't worry if the names 
 app/
   backend/        Go: the API and the jobs, one program with several commands
   web/            TypeScript + React frontend
+terraform/
+  bootstrap/      the state bucket, once per AWS account
+  modules/        reusable pieces (network, security groups, database...)
+  stacks/         one folder per layer, each with its own state
+  envs/           the values for dev, staging and prod
 docs/
   steps/                 the learning path, one step at a time (start here)
+  costs.md               what everything costs in Tokyo
   local-development.md   run it on your laptop, command by command
   app/how-it-works.md    what each piece does and why
   adr/                   decisions we made and why (Architecture Decision Records)
@@ -86,17 +92,19 @@ make reset     # stop and delete all local data
 
 | Step | What | Status |
 |---|---|---|
-| [01](docs/steps/01-understand-the-application.md) | Understand the application and run it locally | ready |
-| 02 | AWS network: VPC, subnets, routing, NAT | next |
-| 03 | Security groups, database (RDS), secrets | planned |
-| 04 | Containers on ECS Fargate behind a load balancer | planned |
-| 05 | Domain, HTTPS, CloudFront, WAF | planned |
-| 06 | Scheduled jobs with EventBridge Scheduler | planned |
-| 07 | Logs, metrics, alarms | planned |
-| 08 | CI/CD with GitHub Actions | planned |
-| 09 | Everything rebuilt from zero with Terraform | planned |
+| [01](docs/steps/01-understand-the-application.md) | Understand the application and run it locally | done |
+| [02](docs/steps/02-aws-network.md) | AWS network: VPC, subnets, routing, NAT, security groups, Terraform layout | ready |
+| [03](docs/steps/03-database-and-secrets.md) | RDS MySQL, Secrets Manager, reports on S3 | ready |
+| [04](docs/steps/04-containers-on-ecs.md) | Containers on ECS Fargate behind a load balancer | ready |
+| [05](docs/steps/05-cdn-and-waf.md) | CloudFront, WAF, HTTPS, optional domain | ready |
+| [06](docs/steps/06-scheduled-jobs.md) | Scheduled jobs with EventBridge Scheduler | ready |
+| [07](docs/steps/07-observability.md) | Logs, metrics, alarms, dashboard | ready |
+| [08](docs/steps/08-ci-cd.md) | CI/CD with GitHub Actions and OIDC | ready |
+| [09](docs/steps/09-rebuild-and-replicate.md) | A second environment from values only, then rebuild everything from zero | ready |
 
-Each AWS step is built by hand in the console first, so we understand it, and then written as Terraform. Every step has its own branch and tag. See [docs/steps](docs/steps/README.md).
+Everything runs in **Tokyo (`ap-northeast-1`)**. A finished dev environment costs about $119 a month (about $0.16 an hour), prod about $252. [docs/costs.md](docs/costs.md) breaks that down per service and per step.
+
+Each AWS step is built by hand in the console first, so we understand it, and then written as Terraform. Every step has its own branch; once merged, it also gets a tag and a `checkpoint/step-NN` branch that includes later fixes. See [docs/steps](docs/steps/README.md).
 
 ## Contributing
 
