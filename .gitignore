@@ -1,0 +1,15 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# local files
+.env
+reports/
+
+# editors and OS
+.idea/
+.vscode/
+.DS_Store
+
+# graphify output (rebuild it with /graphify)
+graphify-out/
