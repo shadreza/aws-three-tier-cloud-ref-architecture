@@ -1,0 +1,47 @@
+# Runs on every pull request and every push: the same checks as `make test`,
+# plus the Terraform checks that need no AWS access. No secrets, no AWS.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: go vet and go test
+        run: make test-backend
+
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: typecheck and build
+        run: make test-web
+
+  terraform:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: terraform fmt and validate
+        run: make tf-validate
+
+  image:
+    # Build the ARM image on an ARM runner, so a broken Dockerfile fails here
+    # and not during a deploy.
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: build the backend image
+        run: docker buildx build --platform linux/arm64 --provenance=false -t uptime-backend:ci app/backend

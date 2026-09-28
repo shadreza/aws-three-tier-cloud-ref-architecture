@@ -45,6 +45,12 @@ variable "budget_email" {
   default     = ""
 }
 
+variable "github_oidc" {
+  description = "Let GitHub Actions log in to this account with short-lived tokens (step 08). One provider per account."
+  type        = bool
+  default     = true
+}
+
 variable "budget_usd" {
   description = "Monthly budget for the whole account, in US dollars."
   type        = number
@@ -174,6 +180,21 @@ resource "aws_budgets_budget" "monthly" {
     notification_type          = "FORECASTED"
     subscriber_email_addresses = [var.budget_email]
   }
+}
+
+# GitHub Actions proves who it is with a signed token instead of stored AWS
+# keys. This tells AWS to trust tokens from GitHub. Which repository and
+# environment may use which role is decided by each role's trust policy
+# (terraform/stacks/cicd).
+resource "aws_iam_openid_connect_provider" "github" {
+  count = var.github_oidc ? 1 : 0
+
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+}
+
+output "github_oidc_provider_arn" {
+  value = var.github_oidc ? aws_iam_openid_connect_provider.github[0].arn : null
 }
 
 output "state_bucket" {
