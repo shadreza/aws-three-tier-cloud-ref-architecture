@@ -1,5 +1,13 @@
 # Stage 1: build the Go program.
-FROM golang:1.25-alpine AS build
+#
+# The build stage always runs on your own machine's CPU type (BUILDPLATFORM),
+# and Go cross-compiles for the target (TARGETARCH). So building the ARM image
+# for Fargate on an x86 laptop is fast and needs no emulation:
+#
+#   docker buildx build --platform linux/arm64 .
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
+ARG TARGETOS=linux
+ARG TARGETARCH
 WORKDIR /src
 
 # Download modules first. Docker caches this step until go.mod or go.sum change.
@@ -7,7 +15,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/uptime ./cmd/uptime
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath -ldflags="-s -w" -o /out/uptime ./cmd/uptime
 RUN mkdir -p /out/reports
 
 # RDS signs its certificates with Amazon's own CA, which is not in the normal
