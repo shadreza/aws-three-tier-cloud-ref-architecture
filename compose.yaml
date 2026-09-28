@@ -1,0 +1,95 @@
+# The whole app on your laptop.
+#
+#   mysql      the database (RDS on AWS)
+#   migrate    creates the tables, then exits (a one-off ECS task on AWS)
+#   api        the Go API (an ECS service behind a load balancer on AWS)
+#   scheduler  runs the check and rollup jobs on a timer (EventBridge Scheduler on AWS)
+#   web        the React app with hot reload (S3 + CloudFront on AWS)
+#
+# Start it with `make up`. See docs/local-development.md for the full guide.
+
+name: uptime
+
+# Settings shared by every service that runs the Go program.
+x-backend: &backend
+  build: ./app/backend
+  image: uptime-backend:local
+  environment:
+    DB_HOST: mysql
+    DB_PORT: "3306"
+    DB_USER: uptime
+    DB_PASSWORD: uptime
+    DB_NAME: uptime
+    ADMIN_TOKEN: ${ADMIN_TOKEN:-local-dev-token}
+    REPORT_DIR: /app/reports
+    # Locally we allow private addresses so the app can watch itself
+    # (http://api:8080). On AWS this stays false. See docs/app/how-it-works.md.
+    ALLOW_PRIVATE_TARGETS: "true"
+    DEV_CHECK_EVERY: ${DEV_CHECK_EVERY:-1m}
+    DEV_ROLLUP_EVERY: ${DEV_ROLLUP_EVERY:-5m}
+  volumes:
+    - reports:/app/reports
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: uptime
+      MYSQL_USER: uptime
+      MYSQL_PASSWORD: uptime
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uuptime", "-puptime"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+
+  migrate:
+    <<: *backend
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api:
+    <<: *backend
+    command: ["api"]
+    ports:
+      - "${API_PORT:-8080}:8080"
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *backend
+    command: ["dev-scheduler"]
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: node:22-alpine
+    working_dir: /web
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    environment:
+      API_URL: http://api:8080
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      - ./app/web:/web
+      - web-node-modules:/web/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mysql-data:
+  reports:
+  web-node-modules:
