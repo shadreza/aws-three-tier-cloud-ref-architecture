@@ -1,8 +1,8 @@
 # The whole app on your laptop.
 #
 #   mysql      the database (RDS on AWS)
-#   migrate    creates the tables, then exits (a one-off ECS task on AWS)
-#   api        the Go API (an ECS service behind a load balancer on AWS)
+#   migrate    creates the tables, then exits (on AWS it runs first in every API task)
+#   api        the Go API (an ECS service behind an internal load balancer on AWS)
 #   scheduler  runs the check and rollup jobs on a timer (EventBridge Scheduler on AWS)
 #   web        the React app with hot reload (S3 + CloudFront on AWS)
 #

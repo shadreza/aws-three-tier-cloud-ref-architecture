@@ -194,16 +194,17 @@ def local_architecture():
 
 
 def aws_architecture():
-    s = Svg(1320, 740, "Target AWS architecture: users reach CloudFront with WAF, which serves web files from S3 and "
-                       "forwards /api to a load balancer in public subnets. ECS Fargate tasks in private subnets "
-                       "use RDS MySQL in isolated subnets and reach the internet through a NAT gateway.")
+    s = Svg(1320, 740, "Target AWS architecture in Tokyo: users reach CloudFront with WAF, which serves web files "
+                       "from S3 and forwards /api through a VPC origin to an internal load balancer in private "
+                       "subnets. ECS Fargate tasks in private subnets use RDS MySQL in isolated subnets and reach "
+                       "the internet through a NAT gateway in the public subnets.")
 
     s.text("sl", 20, 116, "INTERNET")
     s.text("sl", 160, 116, "EDGE · GLOBAL")
     s.rect("region", 340, 40, 965, 660, rx=10)
-    s.text("gl reg", 355, 60, "AWS Region")
+    s.text("gl reg", 355, 60, "AWS Region · ap-northeast-1 (Tokyo)")
     s.rect("vpc", 355, 70, 660, 610)
-    s.text("gl vpcl", 369, 89, "VPC 10.0.0.0/16 · 2 Availability Zones")
+    s.text("gl vpcl", 369, 89, "VPC 10.20.0.0/16 · 2 Availability Zones")
     s.rect("pub", 370, 98, 190, 570, rx=6)
     s.text("sl publ", 382, 116, "PUBLIC SUBNETS")
     s.rect("priv", 575, 98, 240, 570, rx=6)
@@ -212,31 +213,30 @@ def aws_architecture():
     s.text("sl isol", 842, 116, "ISOLATED DATA")
     s.text("sl", 1060, 116, "REGIONAL SERVICES")
 
-    s.rect("grp", 585, 130, 220, 520)
-    s.text("gt", 597, 149, "ECS cluster · Fargate")
+    s.rect("grp", 585, 290, 220, 360)
+    s.text("gt", 597, 309, "ECS cluster · Fargate ARM")
 
     # internet + edge
     s.card(20, 300, "client", "WWW", "Users", "browser", w=110)
     s.card(20, 520, "network", "NET", "Websites", "example.com", w=110)
-    s.card(160, 160, "network", "R53", "Route 53", "DNS for our domain", w=160)
+    s.card(160, 160, "network", "R53", "Route 53", "optional domain", w=160)
     s.card(160, 300, "network", "CF", "CloudFront", "HTTPS · CDN", w=160)
     s.card(160, 380, "security", "WAF", "WAF", "rules on CloudFront", w=160)
     s.card(160, 460, "security", "ACM", "ACM", "TLS certificates", w=160)
 
     # vpc
-    s.card(380, 300, "network", "ALB", "Load balancer", "ALB · HTTPS 443")
     s.card(380, 520, "network", "NAT", "NAT gateway", "outbound only")
-    s.card(600, 200, "compute", "ECS", "migrate task", "before each deploy", dash=True)
-    s.card(600, 300, "compute", "ECS", "api service", "2+ tasks · :8080")
-    s.card(600, 400, "compute", "ECS", "check task", "every minute", dash=True)
-    s.card(600, 460, "compute", "ECS", "rollup task", "every night", dash=True)
-    s.card(835, 300, "database", "RDS", "RDS MySQL", "Multi-AZ · standby", w=160)
+    s.card(600, 230, "network", "ALB", "Load balancer", "internal · :80", w=190)
+    s.card(600, 330, "compute", "ECS", "api service", "migrate first · 2+ tasks", w=190)
+    s.card(600, 420, "compute", "ECS", "check task", "every minute", w=190, dash=True)
+    s.card(600, 480, "compute", "ECS", "rollup task", "every hour", w=190, dash=True)
+    s.card(835, 330, "database", "RDS", "RDS MySQL", "Multi-AZ in prod", w=160)
 
     # regional
     s.card(1060, 160, "storage", "S3", "S3 · web", "React build files")
-    s.card(1060, 200 + 30, "compute", "ECR", "ECR", "container images")
-    s.card(1060, 300, "security", "SM", "Secrets Manager", "database password")
-    s.card(1060, 400, "integration", "EB", "EventBridge", "Scheduler")
+    s.card(1060, 230, "compute", "ECR", "ECR", "container images")
+    s.card(1060, 300, "security", "SM", "Secrets Manager", "password, admin token")
+    s.card(1060, 430, "integration", "EB", "EventBridge", "Scheduler")
     s.card(1060, 520, "storage", "S3", "S3 · reports", "daily CSV files")
     s.card(1060, 600, "integration", "CW", "CloudWatch", "logs, metrics, alarms")
 
@@ -246,26 +246,25 @@ def aws_architecture():
     s.arrow("M130,322 H160")
     s.arrow("M320,310 H332 V22 H1145 V160")
     s.text("al", 740, 16, "/  web files", anchor="middle")
-    s.arrow("M320,332 H380")
-    s.text("al", 350, 350, "/api/*", anchor="middle")
-    s.arrow("M550,322 H600")
-    s.text("al", 575, 314, ":8080", anchor="middle")
-    s.arrow("M770,322 H835")
-    s.text("al", 802, 314, "3306", anchor="middle")
-    s.arrow("M770,412 H915 V344")
-    s.arrow("M770,478 H915 V412")
-    s.text("al", 925, 388, "save and read results")
-    s.arrow("M1060,422 H770")
-    s.text("al", 1000, 414, "starts on schedule", anchor="middle")
-    s.arrow("M1060,436 H1040 V482 H770", thin=True)
-    s.arrow("M770,494 H1020 V542 H1060")
-    s.text("al", 1040, 558, "CSV", anchor="middle")
-    s.arrow("M600,430 H566 V542 H550")
+    s.arrow("M320,332 H350 V252 H600")
+    s.text("al", 465, 244, "/api/* · VPC origin", anchor="middle")
+    s.arrow("M775,274 V330")
+    s.text("al", 768, 322, ":8080", anchor="end")
+    s.arrow("M790,352 H835")
+    s.text("al", 812, 344, "3306", anchor="middle")
+    s.arrow("M790,436 H900 V374")
+    s.text("al", 908, 410, "save results")
+    s.arrow("M1060,452 H790")
+    s.text("al", 990, 446, "starts on schedule", anchor="middle")
+    s.arrow("M1060,466 H1040 V510 H790", thin=True)
+    s.arrow("M695,524 V542 H1060")
+    s.text("al", 960, 536, "CSV", anchor="middle")
+    s.arrow("M600,442 H566 V542 H550")
     s.text("al", 540, 510, "internet calls", anchor="end")
     s.arrow("M380,542 H130")
     s.text("al", 255, 534, "through the internet gateway", anchor="middle")
-    s.arrow("M805,222 H1060 V252", thin=True)
-    s.text("al", 930, 214, "pull image, read secret, send logs", anchor="middle")
+    s.arrow("M805,300 H1030 V252 H1060", thin=True)
+    s.text("al", 918, 294, "pull image, read secrets, send logs", anchor="middle")
 
     s.legend(726, [
         ("cat", "network", "Networking"),

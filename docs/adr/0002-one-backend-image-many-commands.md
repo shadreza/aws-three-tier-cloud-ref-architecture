@@ -1,6 +1,6 @@
 # 0002. One backend image, many commands
 
-- Status: Accepted
+- Status: Accepted. How `migrate` runs on AWS changed in [0012](0012-migrate-as-init-container.md).
 - Date: 2026-09-28
 
 ## Context

@@ -38,12 +38,12 @@ Each box is one Docker container locally. Later, each box becomes an AWS service
 
 | Local (Docker) | On AWS |
 |---|---|
-| `web` (Vite dev server) | S3 + CloudFront |
-| `api` | ECS Fargate service behind an Application Load Balancer |
+| `web` (Vite dev server) | S3 + CloudFront (which also forwards `/api/*` to the load balancer) |
+| `api` | ECS Fargate service behind an internal Application Load Balancer |
 | `mysql` | RDS for MySQL |
 | `scheduler` | EventBridge Scheduler starting ECS tasks |
 | `reports` volume | S3 bucket |
-| `migrate` | one-off ECS task before each deploy |
+| `migrate` | a container that runs first in every API task, then exits |
 
 [docs/app/how-it-works.md](docs/app/how-it-works.md) walks through what happens inside, like the life of a single check.
 
@@ -51,7 +51,7 @@ Each box is one Docker container locally. Later, each box becomes an AWS service
 
 This is the AWS setup the steps build, piece by piece. Don't worry if the names mean nothing yet. Each one gets its own step.
 
-<p align="center"><img src="docs/diagrams/aws-target-architecture.svg" alt="Target AWS architecture: CloudFront and WAF in front, a load balancer in public subnets, ECS Fargate in private subnets and RDS MySQL in isolated subnets" width="100%"></p>
+<p align="center"><img src="docs/diagrams/aws-target-architecture.svg" alt="Target AWS architecture: CloudFront and WAF in front, an internal load balancer and ECS Fargate in private subnets, RDS MySQL in isolated subnets" width="100%"></p>
 
 ## What's in this repo
 

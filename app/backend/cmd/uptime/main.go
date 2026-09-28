@@ -2,7 +2,7 @@
 // Compose service) runs the same image and picks a job by name:
 //
 //	uptime api            run the HTTP API
-//	uptime migrate        create or update the database tables
+//	uptime migrate        create or update the database tables (waits its turn)
 //	uptime seed           add a few example monitors
 //	uptime check          check every monitor once, then exit
 //	uptime rollup         build daily summaries and the CSV report, then exit
@@ -100,8 +100,14 @@ func runAPI(ctx context.Context, cfg config.Config, gdb *gorm.DB) error {
 	return api.Run(ctx, ":"+cfg.HTTPPort, server.Routes())
 }
 
+// runMigrate runs before the API in every API task (an ECS init container).
+// When several tasks start together, they queue on the lock; the first one
+// changes the tables and the others find nothing left to do.
 func runMigrate(ctx context.Context, cfg config.Config, gdb *gorm.DB) error {
-	if err := db.Migrate(gdb.WithContext(ctx)); err != nil {
+	err := db.WaitForLock(ctx, gdb, "uptime-migrate", 2*time.Minute, func() error {
+		return db.Migrate(gdb.WithContext(ctx))
+	})
+	if err != nil {
 		return err
 	}
 	slog.Info("database tables are up to date")
