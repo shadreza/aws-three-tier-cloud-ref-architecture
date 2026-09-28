@@ -51,7 +51,7 @@ Each box is one Docker container locally. Later, each box becomes an AWS service
 
 This is the AWS setup the steps build, piece by piece. Don't worry if the names mean nothing yet. Each one gets its own step.
 
-<p align="center"><img src="docs/diagrams/aws-target-architecture.svg" alt="Target AWS architecture: CloudFront and WAF in front, a load balancer in public subnets, ECS Fargate in private subnets and RDS MySQL in isolated subnets" width="100%"></p>
+<p align="center"><img src="docs/diagrams/aws-target-architecture.svg" alt="Target AWS architecture: CloudFront and WAF in front, an internal load balancer and ECS Fargate in private subnets, RDS MySQL in isolated subnets" width="100%"></p>
 
 ## What's in this repo
 
