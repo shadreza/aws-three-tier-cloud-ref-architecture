@@ -18,32 +18,18 @@ variable "db_port" {
   default = 3306
 }
 
-variable "alb_listener_ports" {
-  description = "Ports the load balancer listens on. 80 for HTTP; add 443 once there is a certificate."
-  type        = list(number)
-  default     = [80]
+variable "alb_port" {
+  description = "The port the internal load balancer listens on."
+  type        = number
+  default     = 80
 }
 
 variable "alb_ingress_cidrs" {
   description = <<-EOT
-    IPv4 ranges allowed to reach the load balancer directly. In step 04 this is
-    your own IP (x.x.x.x/32) for testing. From step 05 on it is empty, and only
-    CloudFront may connect (alb_allow_cloudfront).
+    Extra IPv4 ranges allowed to reach the internal load balancer, for example
+    a VPN range. Usually empty: CloudFront gets its own rule in the edge stack
+    (step 05) and the debug host in the security stack.
   EOT
   type        = list(string)
   default     = []
-}
-
-variable "alb_allow_cloudfront" {
-  description = "Allow CloudFront's origin-facing addresses to reach the load balancer (step 05)."
-  type        = bool
-  default     = false
-
-  # The CloudFront prefix list counts as about 55 rules for each port it is
-  # used with, and a security group allows 60 rules by default. Two ports would
-  # not fit.
-  validation {
-    condition     = !var.alb_allow_cloudfront || length(var.alb_listener_ports) == 1
-    error_message = "With alb_allow_cloudfront, use exactly one listener port (80, or 443 with a certificate)."
-  }
 }

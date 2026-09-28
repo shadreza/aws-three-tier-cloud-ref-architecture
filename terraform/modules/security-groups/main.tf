@@ -2,18 +2,21 @@
 # IP ranges, so "the API may talk to the database" stays true however many
 # tasks run and whatever IPs they get.
 #
-#   internet/CloudFront -> alb :80/:443
-#   alb                 -> app :8080
-#   app, jobs           -> db  :3306
-#   jobs                -> internet (the websites we check)
-#   app, jobs           -> AWS APIs on :443 (ECR, Secrets Manager, logs, S3)
+#   CloudFront (VPC origin) -> alb :80    (rule added by the edge stack, step 05)
+#   alb                     -> app :8080
+#   app, jobs               -> db  :3306
+#   jobs                    -> internet (the websites we check)
+#   app, jobs               -> AWS APIs on :443 (ECR, Secrets Manager, logs, S3)
+#
+# The load balancer is internal (private subnets, no public IP). CloudFront
+# reaches it through a VPC origin; nothing on the internet can.
 #
 # DNS lookups to the VPC resolver are not filtered by security groups, so no
 # rule is needed for them.
 
 resource "aws_security_group" "alb" {
   name        = "${var.name}-alb"
-  description = "Load balancer: HTTP(S) in from the allowed sources, out to the API tasks"
+  description = "Internal load balancer: HTTP in from CloudFront, out to the API tasks"
   vpc_id      = var.vpc_id
   tags        = { Name = "${var.name}-alb" }
 }
@@ -41,38 +44,14 @@ resource "aws_security_group" "db" {
 
 # ---- alb ---------------------------------------------------------------------
 
-locals {
-  alb_cidr_rules = {
-    for pair in setproduct(var.alb_ingress_cidrs, var.alb_listener_ports) :
-    "${pair[0]}-${pair[1]}" => { cidr = pair[0], port = pair[1] }
-  }
-}
-
 resource "aws_vpc_security_group_ingress_rule" "alb_from_cidrs" {
-  for_each = local.alb_cidr_rules
+  for_each = toset(var.alb_ingress_cidrs)
 
   security_group_id = aws_security_group.alb.id
-  description       = "HTTP(S) from an allowed range"
-  cidr_ipv4         = each.value.cidr
-  from_port         = each.value.port
-  to_port           = each.value.port
-  ip_protocol       = "tcp"
-}
-
-# AWS keeps this list of CloudFront addresses up to date for us.
-data "aws_ec2_managed_prefix_list" "cloudfront" {
-  count = var.alb_allow_cloudfront ? 1 : 0
-  name  = "com.amazonaws.global.cloudfront.origin-facing"
-}
-
-resource "aws_vpc_security_group_ingress_rule" "alb_from_cloudfront" {
-  for_each = var.alb_allow_cloudfront ? toset([for p in var.alb_listener_ports : tostring(p)]) : toset([])
-
-  security_group_id = aws_security_group.alb.id
-  description       = "HTTP(S) from CloudFront only"
-  prefix_list_id    = data.aws_ec2_managed_prefix_list.cloudfront[0].id
-  from_port         = tonumber(each.value)
-  to_port           = tonumber(each.value)
+  description       = "HTTP from an allowed range"
+  cidr_ipv4         = each.value
+  from_port         = var.alb_port
+  to_port           = var.alb_port
   ip_protocol       = "tcp"
 }
 

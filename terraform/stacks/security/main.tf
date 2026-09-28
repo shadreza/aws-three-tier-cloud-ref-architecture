@@ -11,9 +11,7 @@ data "terraform_remote_state" "network" {
 module "security_groups" {
   source = "../../modules/security-groups"
 
-  name                 = local.name
-  vpc_id               = data.terraform_remote_state.network.outputs.vpc_id
-  alb_listener_ports   = var.alb_listener_ports
-  alb_ingress_cidrs    = var.alb_ingress_cidrs
-  alb_allow_cloudfront = var.alb_allow_cloudfront
+  name              = local.name
+  vpc_id            = data.terraform_remote_state.network.outputs.vpc_id
+  alb_ingress_cidrs = var.alb_ingress_cidrs
 }

@@ -13,3 +13,7 @@ output "jobs_sg_id" {
 output "db_sg_id" {
   value = module.security_groups.db_sg_id
 }
+
+output "alb_port" {
+  value = module.security_groups.alb_port
+}

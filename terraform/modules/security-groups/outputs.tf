@@ -13,3 +13,7 @@ output "jobs_sg_id" {
 output "db_sg_id" {
   value = aws_security_group.db.id
 }
+
+output "alb_port" {
+  value = var.alb_port
+}
