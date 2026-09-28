@@ -26,3 +26,4 @@ An ADR is a short note about one decision: what we chose, what else we looked at
 | [0011](0011-ecs-fargate-arm-with-pinned-image-tags.md) | ECS on Fargate, ARM, one immutable image tag chosen through SSM | Accepted |
 | [0012](0012-migrate-as-init-container.md) | Run migrate as a container before the API in every task | Accepted |
 | [0013](0013-cloudfront-vpc-origin-and-waf.md) | CloudFront in front, S3 web app, VPC origin for the API, WAF | Accepted |
+| [0014](0014-eventbridge-scheduler-runs-ecs-tasks.md) | EventBridge Scheduler starts a fresh ECS task for each job run | Accepted |
