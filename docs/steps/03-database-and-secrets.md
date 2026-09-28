@@ -36,6 +36,8 @@ The app also changes a little in this step. It learns two things it needs on AWS
 
 ## 2. The design
 
+<p align="center"><img src="../diagrams/step-03-data.svg" alt="Step 03 data layer: RDS MySQL in isolated subnets with TLS, the debug host and Instance Connect Endpoint, secrets and the reports bucket" width="100%"></p>
+
 ```mermaid
 flowchart LR
     subgraph private["private subnets"]

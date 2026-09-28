@@ -39,6 +39,8 @@ At the end of this step the API runs on AWS and answers from inside the VPC. Nob
 
 ## 2. The design
 
+<p align="center"><img src="../diagrams/step-04-compute.svg" alt="Step 04 compute: internal load balancer and ECS Fargate cluster in the private subnets, with ECR, SSM, Secrets Manager, S3 and CloudWatch Logs" width="100%"></p>
+
 ```mermaid
 flowchart LR
     subgraph private["private subnets, both zones"]

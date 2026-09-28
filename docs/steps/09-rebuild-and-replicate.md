@@ -33,6 +33,8 @@ If all three work without clicking in the console, the infrastructure is code. I
 
 ## 2. What differs between environments
 
+<p align="center"><img src="../diagrams/step-09-environments.svg" alt="Step 09: one bootstrap per account and three environments from the same code with different values" width="100%"></p>
+
 Every difference is a value in `terraform/envs/<env>/`. The code in `terraform/stacks` and `terraform/modules` is the same for all of them.
 
 | File | Setting | dev | staging | prod |

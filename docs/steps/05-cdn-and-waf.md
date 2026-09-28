@@ -40,6 +40,10 @@ At the end you can open the app in your browser at `https://dxxxx.cloudfront.net
 
 <p align="center"><img src="../diagrams/aws-target-architecture.svg" alt="Target AWS architecture: users reach CloudFront with WAF, which serves web files from S3 and forwards /api through a VPC origin to an internal load balancer" width="100%"></p>
 
+This step's part of it, in more detail:
+
+<p align="center"><img src="../diagrams/step-05-edge.svg" alt="Step 05 edge: CloudFront with WAF and an SPA function; the default behavior reads the private web bucket through OAC, /api/* goes through a VPC origin to the internal load balancer" width="100%"></p>
+
 ### What happens to one request
 
 ```mermaid

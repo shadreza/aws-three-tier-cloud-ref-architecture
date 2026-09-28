@@ -31,6 +31,8 @@ After this step the app does its job on its own: it checks every website every m
 
 ## 2. The design
 
+<p align="center"><img src="../diagrams/step-06-jobs.svg" alt="Step 06 jobs: EventBridge Scheduler starts check and rollup tasks in the private subnets; they reach websites through the NAT gateway and write to RDS and S3" width="100%"></p>
+
 ```mermaid
 flowchart LR
     sch["EventBridge Scheduler<br/>group uptime-dev"]

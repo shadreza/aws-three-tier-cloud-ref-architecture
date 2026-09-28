@@ -34,6 +34,8 @@ In this step GitHub Actions takes over. Every pull request is tested. Every merg
 
 ## 2. The design
 
+<p align="center"><img src="../diagrams/step-08-cicd.svg" alt="Step 08 CI/CD: GitHub workflows log in to AWS through OIDC and STS to a deploy role that can only deploy" width="100%"></p>
+
 ### The two workflows
 
 ```mermaid
