@@ -56,13 +56,15 @@ Every route table also has one route you cannot remove: `10.20.0.0/16 local`. Th
 
 | Piece | Tier | Why there |
 |---|---|---|
-| load balancer (step 04) | public | it must accept connections from the internet (from CloudFront, after step 05) |
 | NAT gateway | public | it needs the internet gateway to send traffic out |
+| load balancer (step 04) | **private** | only CloudFront needs to reach it, and CloudFront can do that from inside the VPC (a *VPC origin*, step 05); so it gets no public address at all |
 | API tasks (step 04) | **private** | only the load balancer needs to reach them; nobody should reach them directly |
 | check and rollup tasks (step 06) | private | they call websites, so they need outbound internet, but nothing calls them |
 | RDS MySQL (step 03) | **isolated** | it never needs the internet; with no route out, a mistake in a security group still cannot expose it |
 
 Why not put the API in a public subnet? It would work. Plenty of people do it to skip the NAT gateway. But then the only thing between the internet and the API is one security group rule, and the API's outgoing IP address changes with every task. [ADR 0005](../adr/0005-three-subnet-tiers-api-in-private.md) has the full comparison.
+
+And the load balancer? The usual picture has it in the public subnets. Then anyone on the internet can reach it, and you spend effort making sure only CloudFront does. CloudFront **VPC origins** let CloudFront place its own network interfaces in our private subnets and call an *internal* load balancer over AWS's private network. The public subnets end up holding only the NAT gateway. It also saves $7.30 a month: an internet-facing load balancer pays for a public IPv4 address in each zone.
 
 ### The addresses
 
@@ -95,8 +97,8 @@ Security groups point at each other, not at IP addresses. "The `app` group may r
 
 ```mermaid
 flowchart LR
-    cf["CloudFront<br/>(step 05)"] -- "80 / 443" --> alb["sg alb"]
-    you["your IP<br/>(testing, step 04)"] -. "80" .-> alb
+    cf["CloudFront VPC origin<br/>(step 05)"] -- "80" --> alb["sg alb<br/>internal"]
+    dbg["debug host<br/>(testing, steps 03-04)"] -. "80" .-> alb
     alb -- "8080" --> app["sg app<br/>API tasks"]
     app -- "3306" --> db["sg db<br/>RDS"]
     jobs["sg jobs<br/>check, rollup"] -- "3306" --> db
@@ -109,12 +111,13 @@ flowchart LR
     classDef network stroke:#8C4FFF,stroke-width:2px
     classDef security stroke:#DD344C,stroke-width:2px
     class cf network
+    class dbg compute
     class alb,app,jobs,db security
 ```
 
 | Group | In | Out |
 |---|---|---|
-| `alb` | 80 from your IP (step 04) or from CloudFront (step 05) | 8080 to `app` |
+| `alb` | 80 from CloudFront's VPC origin (step 05) and the debug host (step 04) | 8080 to `app` |
 | `app` | 8080 from `alb` | 3306 to `db`, 443 to anywhere (AWS APIs) |
 | `jobs` | nothing | 3306 to `db`, any TCP port to anywhere (websites) |
 | `db` | 3306 from `app` and `jobs` | nothing |
@@ -249,7 +252,7 @@ Open `uptime-dev-private-1a` again. There is a new route whose destination is a 
 
 A new security group allows **all outbound** traffic by default. Delete that rule in each one, then add the rules from the table in [section 2](#who-may-talk-to-whom). For a rule that points at another group, pick **Custom** as the source or destination and start typing `sg-` or the group's name.
 
-Leave the `alb` inbound rule empty for now. Step 04 adds your IP.
+Leave the `alb` inbound rules empty for now. Steps 04 and 05 add them.
 
 ### 4.10 Look at what you built
 

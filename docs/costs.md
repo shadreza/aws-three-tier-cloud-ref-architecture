@@ -15,7 +15,7 @@ Everything in this repo runs in **Tokyo (`ap-northeast-1`)**. This page lists wh
 |---|---|---|
 | NAT gateway | each hour it exists | $0.062 / hour |
 | | each GB that goes through it | $0.062 / GB |
-| Public IPv4 address | each hour, attached or not (NAT's Elastic IP, load balancer, public tasks) | $0.005 / hour |
+| Public IPv4 address | each hour, attached or not (the NAT's Elastic IP; an internet-facing load balancer has one per zone) | $0.005 / hour |
 | S3 gateway endpoint | nothing | free |
 | Interface VPC endpoint | each hour, in each zone | $0.014 / hour / zone |
 | Data between zones | each GB, in each direction | $0.01 / GB |
@@ -49,8 +49,7 @@ What the finished app (after step 08) costs to leave running for a month.
 | Piece | dev and staging | prod | Why prod differs |
 |---|---|---|---|
 | NAT gateway + Elastic IP | $48.91 (1) | $97.82 (2) | one per zone ([ADR 0006](adr/0006-nat-gateways-per-environment.md)) |
-| Load balancer, low traffic | $18.30 | $18.30 | |
-| Load balancer public IPs (one per zone) | $7.30 | $7.30 | |
+| Load balancer (internal), low traffic | $18.30 | $18.30 | internal, so no public IPv4 cost ([ADR 0005](adr/0005-three-subnet-tiers-api-in-private.md)) |
 | API on Fargate | $8.99 (1 task, 0.25 vCPU, 0.5 GB) | $35.96 (2 tasks, 0.5 vCPU, 1 GB) | two tasks in two zones |
 | Check job, every minute | $9.00 | $9.00 | |
 | Rollup job, every hour | $0.15 | $0.15 | |
@@ -59,8 +58,8 @@ What the finished app (after step 08) costs to leave running for a month.
 | CloudWatch Logs + 8 alarms | $1.30 | $2.00 | |
 | WAF (1 web ACL, 4 rules) | $9.10 | $9.10 | |
 | ECR, S3, CloudFront, Scheduler | under $0.50 | under $1.00 | |
-| **Total, about** | **$125 / month** | **$260 / month** | |
-| **Per hour, about** | **$0.17** | **$0.36** | |
+| **Total, about** | **$119 / month** | **$252 / month** | |
+| **Per hour, about** | **$0.16** | **$0.35** | |
 
 Optional: a domain in Route 53 adds $0.50 a month for the hosted zone, plus about $15 a year to register a `.com` name.
 
@@ -70,7 +69,7 @@ Where the money goes in dev:
 pie showData
     title dev environment, USD per month
     "NAT gateway" : 48.9
-    "Load balancer + its IPs" : 25.6
+    "Load balancer" : 18.3
     "RDS MySQL" : 21.0
     "Fargate (API + jobs)" : 18.1
     "WAF" : 9.1
@@ -101,13 +100,13 @@ Each step adds pieces. This is the running total per hour while everything from 
 |---|---|---|---|
 | 02 network | NAT gateway + Elastic IP; a `t4g.nano` test machine while you test | $0.067 (+ $0.006) | $0.07 |
 | 03 database | RDS `db.t4g.micro`, 2 secrets, reports bucket | $0.030 | $0.10 |
-| 04 containers | load balancer + 2 IPs, 1 API task, ECR | $0.047 | $0.15 |
-| 05 edge | CloudFront (free tier), WAF | $0.012 | $0.16 |
-| 06 jobs | check task every minute, rollup every hour | $0.013 | $0.17 |
-| 07 observability | alarms, log data | $0.002 | $0.17 |
-| 08 CI/CD | GitHub Actions (free for public repos), IAM roles (free) | $0 | $0.17 |
+| 04 containers | internal load balancer, 1 API task, ECR | $0.038 | $0.14 |
+| 05 edge | CloudFront (free tier), WAF | $0.012 | $0.15 |
+| 06 jobs | check task every minute, rollup every hour | $0.013 | $0.16 |
+| 07 observability | alarms, log data | $0.002 | $0.16 |
+| 08 CI/CD | GitHub Actions (free for public repos), IAM roles (free) | $0 | $0.16 |
 
-A three-hour study session at the end of the track costs about $0.50. A dev environment forgotten for a month costs about $125. **Every step ends with a clean-up section. Do it.**
+A three-hour study session at the end of the track costs about $0.50. A dev environment forgotten for a month costs about $119. **Every step ends with a clean-up section. Do it.**
 
 ## Ways to spend less
 
