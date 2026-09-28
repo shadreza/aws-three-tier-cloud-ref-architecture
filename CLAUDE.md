@@ -58,7 +58,7 @@ Run `make test` before every commit. After Go changes, `make restart` rebuilds t
 - Each AWS step is done **by hand in the console first**, then written as Terraform. Docs follow that order: understand, build by hand, test and break, Terraform.
 - Do not run AWS CLI commands (not even read-only ones). Print the exact command for the human to run and ask for the output.
 - Region is Tokyo, `ap-northeast-1` (ADR 0004). Every cost in the docs is a Tokyo price; update `docs/costs.md` when a step adds something billable.
-- Terraform: modules in `terraform/modules` (no provider/backend), one root per layer in `terraform/stacks` (network, security, data, compute, edge, jobs, observability, cicd), values per environment in `terraform/envs/<env>`. Environments differ only by values, never by code. Stacks read lower stacks with `terraform_remote_state`.
+- Terraform: modules in `terraform/modules` (no provider/backend), one root per layer in `terraform/stacks` (network, security, data, registry, compute, edge, jobs, observability, cicd), values per environment in `terraform/envs/<env>`. Environments differ only by values, never by code. Stacks read lower stacks with `terraform_remote_state`.
 - `make tf-validate` is safe to run (no credentials). `make tf-plan/apply/destroy/output/bootstrap` touch AWS: the human runs them.
 - Secrets never go in `.tfvars` or Terraform state (use write-only arguments or AWS-managed secrets).
 

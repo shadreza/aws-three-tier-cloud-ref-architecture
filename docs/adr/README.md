@@ -25,3 +25,4 @@ An ADR is a short note about one decision: what we chose, what else we looked at
 | [0010](0010-reports-on-s3.md) | Daily reports on S3, behind the same interface | Accepted |
 | [0011](0011-ecs-fargate-arm-with-pinned-image-tags.md) | ECS on Fargate, ARM, one immutable image tag chosen through SSM | Accepted |
 | [0012](0012-migrate-as-init-container.md) | Run migrate as a container before the API in every task | Accepted |
+| [0013](0013-cloudfront-vpc-origin-and-waf.md) | CloudFront in front, S3 web app, VPC origin for the API, WAF | Accepted |

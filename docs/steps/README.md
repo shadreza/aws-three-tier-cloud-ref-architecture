@@ -21,8 +21,8 @@ flowchart LR
 | [01](01-understand-the-application.md) | The application: what it does, how the pieces talk, how to run it | | `step-01/initial-application` | done |
 | [02](02-aws-network.md) | VPC, subnets, route tables, internet and NAT gateways, security groups, Terraform layout | `network`, `security` | `step-02/aws-network` | ready |
 | [03](03-database-and-secrets.md) | RDS MySQL in isolated subnets, the password in Secrets Manager, reports on S3 | `data` | `step-03/database-and-secrets` | ready |
-| [04](04-containers-on-ecs.md) | ECR, ECS Fargate, the API behind a load balancer, IAM roles for tasks | `compute` | `step-04/containers-on-ecs` | ready |
-| [05](05-cdn-and-waf.md) | CloudFront in front of S3 and the load balancer, WAF, HTTPS, optional domain | `edge` | `step-05/cdn-and-waf` | ready |
+| [04](04-containers-on-ecs.md) | ECR, ECS Fargate, the API behind an internal load balancer, IAM roles for tasks | `registry`, `compute` | `step-04/containers-on-ecs` | ready |
+| [05](05-cdn-and-waf.md) | CloudFront in front of S3 and the internal load balancer, WAF, HTTPS, optional domain | `edge` | `step-05/cdn-and-waf` | ready |
 | [06](06-scheduled-jobs.md) | EventBridge Scheduler starting the check and rollup tasks | `jobs` | `step-06/scheduled-jobs` | ready |
 | [07](07-observability.md) | Logs, metrics, alarms, a dashboard, email alerts | `observability` | `step-07/observability` | ready |
 | [08](08-ci-cd.md) | GitHub Actions with OIDC: test, build, push, deploy | `cicd` | `step-08/ci-cd` | ready |

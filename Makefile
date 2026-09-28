@@ -10,7 +10,7 @@ ME         := $(shell id -u):$(shell id -g)
 
 .DEFAULT_GOAL := help
 .PHONY: help up down restart ps logs seed check rollup migrate db test test-backend test-web fmt reset \
-	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate image-push image-use
+	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate image-push image-use web-build web-deploy
 
 help: ## Show this list
 	@echo "Usage: make <command>"
@@ -166,3 +166,21 @@ image-push: ## Build the ARM image and push it to ECR: make image-push env=dev
 image-use: ## Set the image tag the environment runs: make image-use env=dev tag=abc123
 	@test -n "$(env)" -a -n "$(tag)" || (echo "set env and tag, for example: make image-use env=dev tag=abc123" && exit 1)
 	aws ssm put-parameter --region $(AWS_REGION_) --name /uptime-$(env)/image-tag --type String --value $(tag) --overwrite
+
+# ---- Web app (from step 05 on) ------------------------------------------------------
+#
+# Build the React app and upload it to the environment's web bucket. Files in
+# assets/ have a hash in their name, so browsers may keep them for a year;
+# index.html must always be fetched fresh so it points at the newest assets.
+
+web-build: ## Build the web app into app/web/dist
+	$(COMPOSE) run --rm --no-deps web sh -c "npm ci --no-audit --no-fund && npm run build && chown -R $(ME) dist"
+
+web-deploy: web-build ## Upload the web app and refresh CloudFront: make web-deploy env=dev
+	@test -n "$(env)" || (echo "set env, for example: make web-deploy env=dev" && exit 1)
+	$(eval WEB_BUCKET := $(shell $(MAKE) -s tf-output env=$(env) stack=edge name=web_bucket 2>/dev/null))
+	$(eval DIST_ID := $(shell $(MAKE) -s tf-output env=$(env) stack=edge name=distribution_id 2>/dev/null))
+	@test -n "$(WEB_BUCKET)" -a -n "$(DIST_ID)" || (echo "could not read the edge stack outputs; is it applied?" && exit 1)
+	aws s3 sync app/web/dist/assets s3://$(WEB_BUCKET)/assets --cache-control "public,max-age=31536000,immutable"
+	aws s3 sync app/web/dist s3://$(WEB_BUCKET) --exclude "assets/*" --cache-control "no-cache" --delete
+	aws cloudfront create-invalidation --distribution-id $(DIST_ID) --paths "/index.html" --query 'Invalidation.Id' --output text
