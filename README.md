@@ -38,12 +38,12 @@ Each box is one Docker container locally. Later, each box becomes an AWS service
 
 | Local (Docker) | On AWS |
 |---|---|
-| `web` (Vite dev server) | S3 + CloudFront |
-| `api` | ECS Fargate service behind an Application Load Balancer |
+| `web` (Vite dev server) | S3 + CloudFront (which also forwards `/api/*` to the load balancer) |
+| `api` | ECS Fargate service behind an internal Application Load Balancer |
 | `mysql` | RDS for MySQL |
 | `scheduler` | EventBridge Scheduler starting ECS tasks |
 | `reports` volume | S3 bucket |
-| `migrate` | one-off ECS task before each deploy |
+| `migrate` | a container that runs first in every API task, then exits |
 
 [docs/app/how-it-works.md](docs/app/how-it-works.md) walks through what happens inside, like the life of a single check.
 
