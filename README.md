@@ -13,7 +13,7 @@ We picked it because it needs every part of a normal production system:
 
 The app runs on your laptop with Docker. Steps 02 to 09 then build the AWS setup for it, one layer at a time, first by hand and then in Terraform (see [The steps](#the-steps)).
 
-**New here? Start with [Step 01: Understand the application](docs/steps/01-understand-the-application.md).**
+**New here? Read the [learning path](docs/learning-path.md), then start with [Step 01: Understand the application](docs/steps/01-understand-the-application.md) and its [workbook](docs/workbook/01-understand-the-application.md).**
 
 ## See it running in 5 minutes
 
@@ -65,7 +65,11 @@ terraform/
   stacks/         one folder per layer, each with its own state
   envs/           the values for dev, staging and prod
 docs/
-  steps/                 the learning path, one step at a time (start here)
+  steps/                 the guides, one step at a time (start here)
+  workbook/              what you work through for each step: checklists, commands, a log
+  learning-path.md       how to study the whole track on your own
+  teaching-guide.md      how to run it as a course for a team
+  runbook.md             operating the finished system: deploys, alarms, recovery
   costs.md               what everything costs in Tokyo
   local-development.md   run it on your laptop, command by command
   app/how-it-works.md    what each piece does and why

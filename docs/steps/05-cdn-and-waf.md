@@ -8,6 +8,7 @@ At the end you can open the app in your browser at `https://dxxxx.cloudfront.net
 - **Cost:** CloudFront is inside the free tier at our traffic (1 TB and 10 million requests a month). WAF is about $9 a month, or $0.012 an hour. About $0.15 an hour in total now. See [costs.md](../costs.md).
 - **You need:** steps 02 to 04 applied with Terraform in dev, with the API service running
 - **Branch:** `step-05/cdn-and-waf`
+- **Workbook:** [docs/workbook/05-cdn-and-waf.md](../workbook/05-cdn-and-waf.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

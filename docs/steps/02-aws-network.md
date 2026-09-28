@@ -10,6 +10,7 @@ You build it three times: on paper, by hand in the console, and in Terraform.
 - **Cost:** about $0.07 an hour while it exists (mostly the NAT gateway). About $0.20 for the whole step if you clean up at the end. See [costs.md](../costs.md).
 - **You need:** an AWS account where you can create VPCs and IAM roles, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), `jq`, Docker, make
 - **Branch:** `step-02/aws-network`
+- **Workbook:** [docs/workbook/02-aws-network.md](../workbook/02-aws-network.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

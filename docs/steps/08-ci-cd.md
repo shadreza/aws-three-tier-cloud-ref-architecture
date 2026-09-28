@@ -8,6 +8,7 @@ In this step GitHub Actions takes over. Every pull request is tested. Every merg
 - **Cost:** GitHub Actions is free for public repositories, including ARM runners. The IAM role and the OIDC provider are free. See [costs.md](../costs.md).
 - **You need:** steps 02 to 07 applied in dev, admin rights on the GitHub repository, and the [GitHub CLI](https://cli.github.com/) (`gh`) logged in (optional; everything can also be clicked)
 - **Branch:** `step-08/ci-cd`
+- **Workbook:** [docs/workbook/08-ci-cd.md](../workbook/08-ci-cd.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

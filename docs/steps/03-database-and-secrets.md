@@ -8,6 +8,7 @@ The app also changes a little in this step. It learns two things it needs on AWS
 - **Cost:** about $0.03 an hour on top of step 02, so about $0.10 an hour in total. See [costs.md](../costs.md).
 - **You need:** step 02 applied with Terraform (`network` and `security` stacks in dev)
 - **Branch:** `step-03/database-and-secrets`
+- **Workbook:** [docs/workbook/03-database-and-secrets.md](../workbook/03-database-and-secrets.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

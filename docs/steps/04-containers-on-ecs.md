@@ -8,6 +8,7 @@ At the end of this step the API runs on AWS and answers from inside the VPC. Nob
 - **Cost:** about $0.04 an hour on top of steps 02 and 03, so about $0.14 an hour in total. See [costs.md](../costs.md).
 - **You need:** steps 02 and 03 applied with Terraform in dev, Docker with `buildx` (Docker Desktop has it; on Linux install the `docker-buildx` plugin)
 - **Branch:** `step-04/containers-on-ecs`
+- **Workbook:** [docs/workbook/04-containers-on-ecs.md](../workbook/04-containers-on-ecs.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

@@ -7,6 +7,7 @@ No AWS account is needed yet.
 - **Time:** about 1 to 2 hours
 - **You need:** Docker, make, git ([how to install](../local-development.md#what-you-need))
 - **Branch:** `step-01/initial-application`
+- **Workbook:** [docs/workbook/01-understand-the-application.md](../workbook/01-understand-the-application.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 

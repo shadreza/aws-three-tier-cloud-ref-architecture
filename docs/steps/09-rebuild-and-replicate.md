@@ -12,6 +12,7 @@ If all three work without clicking in the console, the infrastructure is code. I
 - **Cost:** a second environment costs as much as dev, about $0.16 an hour. Staging for 3 hours is about $0.50. See [costs.md](../costs.md).
 - **You need:** steps 02 to 08 done in dev
 - **Branch:** `step-09/rebuild-and-replicate`
+- **Workbook:** [docs/workbook/09-rebuild-and-replicate.md](../workbook/09-rebuild-and-replicate.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
