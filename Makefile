@@ -10,7 +10,7 @@ ME         := $(shell id -u):$(shell id -g)
 
 .DEFAULT_GOAL := help
 .PHONY: help up down restart ps logs seed check rollup migrate db test test-backend test-web fmt reset \
-	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate image-push image-use web-build web-deploy
+	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate image-push image-use web-build web-deploy web-upload
 
 help: ## Show this list
 	@echo "Usage: make <command>"
@@ -176,8 +176,11 @@ image-use: ## Set the image tag the environment runs: make image-use env=dev tag
 web-build: ## Build the web app into app/web/dist
 	$(COMPOSE) run --rm --no-deps web sh -c "npm ci --no-audit --no-fund && npm run build && chown -R $(ME) dist"
 
-web-deploy: web-build ## Upload the web app and refresh CloudFront: make web-deploy env=dev
-	@test -n "$(env)" || (echo "set env, for example: make web-deploy env=dev" && exit 1)
+web-deploy: web-build web-upload ## Build, upload the web app and refresh CloudFront: make web-deploy env=dev
+
+web-upload: ## Upload an already built app/web/dist (CI uses this): make web-upload env=dev
+	@test -n "$(env)" || (echo "set env, for example: make web-upload env=dev" && exit 1)
+	@test -f app/web/dist/index.html || (echo "no app/web/dist; run make web-build first" && exit 1)
 	$(eval WEB_BUCKET := $(shell $(MAKE) -s tf-output env=$(env) stack=edge name=web_bucket 2>/dev/null))
 	$(eval DIST_ID := $(shell $(MAKE) -s tf-output env=$(env) stack=edge name=distribution_id 2>/dev/null))
 	@test -n "$(WEB_BUCKET)" -a -n "$(DIST_ID)" || (echo "could not read the edge stack outputs; is it applied?" && exit 1)
