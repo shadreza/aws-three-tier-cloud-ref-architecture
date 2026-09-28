@@ -469,7 +469,7 @@ AWS sends a confirmation email for the budget. Nothing else needs clicking.
 
 ### 8.3 Fill in the environment
 
-Open `terraform/envs/dev/backend.hcl` and `terraform/envs/dev/common.tfvars` and replace `000000000000` with your account ID in both. That is the only change needed.
+Open `terraform/envs/dev/backend.hcl` and `terraform/envs/dev/common.tfvars` and replace `000000000000` with your account ID in both. That is the only change needed. Commit both files: an account ID is not a secret, and in step 08 GitHub Actions reads them from the repository.
 
 `common.tfvars` also sets `account_id`, which goes into the provider's `allowed_account_ids`. If your terminal is logged in to a different account, Terraform stops with `Error: AWS account ID not allowed` before it changes anything.
 

@@ -40,13 +40,12 @@ make tf-fmt                                                              # local
 make tf-validate                                                         # local, no credentials needed
 ```
 
-Extra variables for one run: `vars="-var image_tag=abc123"`.
+Extra variables for one run: `vars="-var nat_gateway_mode=none"` (with `stack=network`).
 
 ## A new environment
 
-1. Copy `envs/dev` to `envs/<name>` and change the values (account ID, VPC range, sizes).
-2. Add `<name>` to the `environment` validation in `stacks/*/common.tf`.
-3. Apply the stacks in order with `env=<name>`.
+1. Copy `envs/dev` to `envs/<name>` and change the values (account ID, VPC range, sizes). The name must be short and lowercase (`qa`, `perf`).
+2. Apply the stacks in order with `env=<name>`.
 
 Step 09 walks through this for staging.
 

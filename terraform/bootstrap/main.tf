@@ -9,7 +9,7 @@
 # It also sets up a monthly cost budget that emails you, because a forgotten
 # NAT gateway or database costs real money.
 #
-# See docs/steps/02-aws-network.md, section 7.
+# See docs/steps/02-aws-network.md, section 8.2.
 
 terraform {
   required_version = ">= 1.11"

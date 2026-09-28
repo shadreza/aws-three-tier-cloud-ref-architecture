@@ -7,12 +7,12 @@ variable "project" {
 }
 
 variable "environment" {
-  description = "dev, staging or prod."
+  description = "dev, staging, prod, or any other short name with a folder in envs/."
   type        = string
 
   validation {
-    condition     = contains(["dev", "staging", "prod"], var.environment)
-    error_message = "environment must be dev, staging or prod."
+    condition     = can(regex("^[a-z][a-z0-9]{1,11}$", var.environment))
+    error_message = "environment must be a short lowercase name such as dev, staging or prod."
   }
 }
 

@@ -1,6 +1,6 @@
 # The steps
 
-This repo is built one step at a time. Each step adds one layer, and each step has its own branch, tag and checkpoint branch, so you can always jump to the end of any step and look around.
+This repo is built one step at a time. Each step adds one layer and has its own branch. Once a step is merged it also gets a tag and a checkpoint branch, so you can always jump to the end of any finished step and look around.
 
 Do them in order. Every step expects that you finished the one before.
 
@@ -56,7 +56,7 @@ Every finished step has two markers:
 | tag | `step-01-initial-application` | the exact commit where the step was first merged | never |
 | checkpoint branch | `checkpoint/step-01` | the end of the step **plus any fixes** found later for that step | only forward, only with fixes |
 
-Why both? Step 01 was merged, and afterwards we found that a `.gitignore` rule had kept the `internal/reports` package out of git, so a fresh clone did not build. The tag still points at the broken commit, on purpose: it is history. `checkpoint/step-01` points at the fixed version. **To start a step, use the checkpoint of the step before it.**
+Why both? Step 01 was merged, and afterwards we found that a `.gitignore` rule had kept the `internal/reports` package out of git, so a fresh clone did not build. The tag still points at the broken commit, on purpose: it is history. `checkpoint/step-01` points at the fixed version. **To start a step, use the checkpoint of the step before it.** Checkpoints are created when a step is merged into `master`; a step that is still a pull request has only its branch.
 
 ```bash
 git fetch --all --tags

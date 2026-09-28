@@ -104,7 +104,7 @@ make reset     # stop and delete all local data
 
 Everything runs in **Tokyo (`ap-northeast-1`)**. A finished dev environment costs about $119 a month (about $0.16 an hour), prod about $252. [docs/costs.md](docs/costs.md) breaks that down per service and per step.
 
-Each AWS step is built by hand in the console first, so we understand it, and then written as Terraform. Every step has its own branch, a tag, and a `checkpoint/step-NN` branch that includes later fixes. See [docs/steps](docs/steps/README.md).
+Each AWS step is built by hand in the console first, so we understand it, and then written as Terraform. Every step has its own branch; once merged, it also gets a tag and a `checkpoint/step-NN` branch that includes later fixes. See [docs/steps](docs/steps/README.md).
 
 ## Contributing
 

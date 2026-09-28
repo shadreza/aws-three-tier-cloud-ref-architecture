@@ -113,7 +113,7 @@ A three-hour study session at the end of the track costs about $0.50. A dev envi
 1. **Destroy what you are not using.** Each stack can be destroyed and rebuilt in minutes: `make tf-destroy env=dev stack=<stack>`, in reverse order (see step 09).
 2. **Turn the NAT gateway off** between sessions: set `nat_gateway_mode = "none"` in `envs/dev/network.tfvars` and apply. Saves $1.61 a day. Checks and image pulls stop working until you turn it back on.
 3. **Stop the database.** RDS can be stopped for up to 7 days (you still pay for storage). AWS starts it again by itself after 7 days.
-4. **Set up a budget alert** before anything else. `terraform/bootstrap` makes one if you give it your email (step 02, section 7). The first two budgets in an account are free.
+4. **Set up a budget alert** before anything else. `terraform/bootstrap` makes one if you give it your email (step 02, section 8.2). The first two budgets in an account are free.
 5. **Use ARM (Graviton) for Fargate.** It is about 20% cheaper than x86 for the same size. We already do.
 
 ## Check a price yourself
