@@ -28,6 +28,10 @@ flowchart LR
 | [08](08-ci-cd.md) | GitHub Actions with OIDC: test, build, push, deploy | `cicd` | `step-08/ci-cd` | ready |
 | [09](09-rebuild-and-replicate.md) | Make staging from values only, tear everything down, rebuild from zero | all | `step-09/rebuild-and-replicate` | ready |
 
+Each step has a **workbook** next to its guide, in [docs/workbook](../workbook/README.md): checklists per phase, the Terraform commands in order with what you should see, blanks for values later steps need, and a session log. Read the guide, work through the workbook.
+
+Also see the [learning path](../learning-path.md) (how to study this on your own), the [teaching guide](../teaching-guide.md) (running it as a course) and the [runbook](../runbook.md) (operating the finished system).
+
 From step 02 on, each AWS step works the same way:
 
 ```mermaid

@@ -8,6 +8,7 @@ The app also changes a little in this step. It learns two things it needs on AWS
 - **Cost:** about $0.03 an hour on top of step 02, so about $0.10 an hour in total. See [costs.md](../costs.md).
 - **You need:** step 02 applied with Terraform (`network` and `security` stacks in dev)
 - **Branch:** `step-03/database-and-secrets`
+- **Workbook:** [docs/workbook/03-database-and-secrets.md](../workbook/03-database-and-secrets.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -35,6 +36,8 @@ The app also changes a little in this step. It learns two things it needs on AWS
 | **S3 bucket** | A place to keep files ("objects"). Each file has a key, like `reports/2026-09-29.csv`. |
 
 ## 2. The design
+
+<p align="center"><img src="../diagrams/step-03-data.svg" alt="Step 03 data layer: RDS MySQL in isolated subnets with TLS, the debug host and Instance Connect Endpoint, secrets and the reports bucket" width="100%"></p>
 
 ```mermaid
 flowchart LR

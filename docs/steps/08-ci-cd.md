@@ -8,6 +8,7 @@ In this step GitHub Actions takes over. Every pull request is tested. Every merg
 - **Cost:** GitHub Actions is free for public repositories, including ARM runners. The IAM role and the OIDC provider are free. See [costs.md](../costs.md).
 - **You need:** steps 02 to 07 applied in dev, admin rights on the GitHub repository, and the [GitHub CLI](https://cli.github.com/) (`gh`) logged in (optional; everything can also be clicked)
 - **Branch:** `step-08/ci-cd`
+- **Workbook:** [docs/workbook/08-ci-cd.md](../workbook/08-ci-cd.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -33,6 +34,8 @@ In this step GitHub Actions takes over. Every pull request is tested. Every merg
 | **Trust policy** | The part of an IAM role that says *who* may use it. Ours: only jobs in this repository and this environment. |
 
 ## 2. The design
+
+<p align="center"><img src="../diagrams/step-08-cicd.svg" alt="Step 08 CI/CD: GitHub workflows log in to AWS through OIDC and STS to a deploy role that can only deploy" width="100%"></p>
 
 ### The two workflows
 

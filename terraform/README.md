@@ -13,6 +13,42 @@ Why this layout: [ADR 0007](../docs/adr/0007-terraform-layout-stacks-and-environ
 
 ## Stacks, in order
 
+```mermaid
+flowchart LR
+    boot["bootstrap<br/>state bucket, budget, OIDC<br/>once per account"]
+    net["network<br/>step 02"] --> sec["security<br/>step 02"]
+    net --> data["data<br/>step 03"]
+    sec --> data
+    data --> comp["compute<br/>step 04"]
+    reg["registry<br/>step 04"] --> comp
+    net --> comp
+    sec --> comp
+    comp --> edge["edge<br/>step 05"]
+    comp --> jobs["jobs<br/>step 06"]
+    comp --> obs["observability<br/>step 07"]
+    jobs --> obs
+    edge --> obs
+    data --> obs
+    comp --> cicd["cicd<br/>step 08"]
+    edge --> cicd
+    reg --> cicd
+    boot -. "holds every state file" .-> net
+    classDef compute stroke:#ED7100,stroke-width:2px
+    classDef jobs stroke:#E7157B,stroke-width:2px
+    classDef database stroke:#C925D1,stroke-width:2px
+    classDef storage stroke:#7AA116,stroke-width:2px
+    classDef network stroke:#8C4FFF,stroke-width:2px
+    classDef security stroke:#DD344C,stroke-width:2px
+    class boot storage
+    class net,edge network
+    class sec,cicd security
+    class data database
+    class reg,comp compute
+    class jobs,obs jobs
+```
+
+An arrow means "reads the outputs of" (`terraform_remote_state`). To keep the picture readable it shows the main ones; `edge` and `jobs` also read `network` and `security`. Apply along the arrows (the order in `TF_STACKS`), destroy against them.
+
 Each stack reads the outputs of the ones above it, so apply them top to bottom and destroy them bottom to top.
 
 | Stack | Step | What it holds |

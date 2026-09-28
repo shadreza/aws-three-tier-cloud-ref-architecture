@@ -8,6 +8,7 @@ After this step the app does its job on its own: it checks every website every m
 - **Cost:** about $9 a month for the check task and $0.15 for rollup; the scheduler itself is free at this volume. About $0.16 an hour in total now. See [costs.md](../costs.md).
 - **You need:** steps 02 to 05 applied in dev
 - **Branch:** `step-06/scheduled-jobs`
+- **Workbook:** [docs/workbook/06-scheduled-jobs.md](../workbook/06-scheduled-jobs.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -30,6 +31,8 @@ After this step the app does its job on its own: it checks every website every m
 | **Task definition revision** | Each change to a task definition makes a new numbered revision. An ARN without the number means "the newest". |
 
 ## 2. The design
+
+<p align="center"><img src="../diagrams/step-06-jobs.svg" alt="Step 06 jobs: EventBridge Scheduler starts check and rollup tasks in the private subnets; they reach websites through the NAT gateway and write to RDS and S3" width="100%"></p>
 
 ```mermaid
 flowchart LR

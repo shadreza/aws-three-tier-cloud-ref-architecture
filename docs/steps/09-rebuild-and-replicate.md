@@ -12,6 +12,7 @@ If all three work without clicking in the console, the infrastructure is code. I
 - **Cost:** a second environment costs as much as dev, about $0.16 an hour. Staging for 3 hours is about $0.50. See [costs.md](../costs.md).
 - **You need:** steps 02 to 08 done in dev
 - **Branch:** `step-09/rebuild-and-replicate`
+- **Workbook:** [docs/workbook/09-rebuild-and-replicate.md](../workbook/09-rebuild-and-replicate.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -32,6 +33,8 @@ If all three work without clicking in the console, the infrastructure is code. I
 | **Idempotent** | Running it again changes nothing. `terraform apply` on an up-to-date stack says `No changes`. |
 
 ## 2. What differs between environments
+
+<p align="center"><img src="../diagrams/step-09-environments.svg" alt="Step 09: one bootstrap per account and three environments from the same code with different values" width="100%"></p>
 
 Every difference is a value in `terraform/envs/<env>/`. The code in `terraform/stacks` and `terraform/modules` is the same for all of them.
 

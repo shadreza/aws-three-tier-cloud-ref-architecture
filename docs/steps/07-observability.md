@@ -6,6 +6,7 @@ The app runs by itself now. That also means it can break by itself, at 3 in the 
 - **Cost:** about $2.40 a month in dev (10 alarms, 3 custom metrics, a little log data). See [costs.md](../costs.md).
 - **You need:** steps 02 to 06 applied in dev, and an email address you can read
 - **Branch:** `step-07/observability`
+- **Workbook:** [docs/workbook/07-observability.md](../workbook/07-observability.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -32,6 +33,8 @@ The app runs by itself now. That also means it can break by itself, at 3 in the 
 | **p95** | 95% of requests were faster than this. Averages hide the slow requests; p95 shows them. |
 
 ## 2. The design
+
+<p align="center"><img src="../diagrams/step-07-observability.svg" alt="Step 07 observability: metrics and log-based metrics feed ten alarms, which notify SNS and email; dashboard and Logs Insights for looking deeper" width="100%"></p>
 
 ### What we want to hear about
 

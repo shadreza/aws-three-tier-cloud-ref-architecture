@@ -28,3 +28,18 @@ python3 docs/diagrams/build.py
 ```
 
 **Everything else** (sequences, tables, small flows) is written in [Mermaid](https://mermaid.js.org) right inside the Markdown, so GitHub draws it and anyone can edit it as text. Flowcharts use the same colors as borders through `classDef`.
+
+## The pictures
+
+| File | Shows | Used in |
+|---|---|---|
+| `local-architecture.svg` | the app on your laptop, in Docker | README, step 01 |
+| `aws-target-architecture.svg` | the whole AWS setup at the end of the track | README, step 05 |
+| `aws-network.svg` | VPC, subnets, gateways, routes | step 02 |
+| `step-03-data.svg` | RDS, secrets, reports bucket, debug host | step 03 |
+| `step-04-compute.svg` | ECS cluster, internal load balancer, roles, ECR | step 04 |
+| `step-05-edge.svg` | CloudFront, WAF, VPC origin, web bucket | step 05 |
+| `step-06-jobs.svg` | EventBridge Scheduler and the job tasks | step 06 |
+| `step-07-observability.svg` | metrics, log filters, alarms, SNS, dashboard | step 07 |
+| `step-08-cicd.svg` | GitHub workflows, OIDC, the deploy role | step 08 |
+| `step-09-environments.svg` | bootstrap and three environments side by side | step 09 |

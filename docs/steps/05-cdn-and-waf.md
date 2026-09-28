@@ -8,6 +8,7 @@ At the end you can open the app in your browser at `https://dxxxx.cloudfront.net
 - **Cost:** CloudFront is inside the free tier at our traffic (1 TB and 10 million requests a month). WAF is about $9 a month, or $0.012 an hour. About $0.15 an hour in total now. See [costs.md](../costs.md).
 - **You need:** steps 02 to 04 applied with Terraform in dev, with the API service running
 - **Branch:** `step-05/cdn-and-waf`
+- **Workbook:** [docs/workbook/05-cdn-and-waf.md](../workbook/05-cdn-and-waf.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -39,6 +40,10 @@ At the end you can open the app in your browser at `https://dxxxx.cloudfront.net
 ## 2. The design
 
 <p align="center"><img src="../diagrams/aws-target-architecture.svg" alt="Target AWS architecture: users reach CloudFront with WAF, which serves web files from S3 and forwards /api through a VPC origin to an internal load balancer" width="100%"></p>
+
+This step's part of it, in more detail:
+
+<p align="center"><img src="../diagrams/step-05-edge.svg" alt="Step 05 edge: CloudFront with WAF and an SPA function; the default behavior reads the private web bucket through OAC, /api/* goes through a VPC origin to the internal load balancer" width="100%"></p>
 
 ### What happens to one request
 

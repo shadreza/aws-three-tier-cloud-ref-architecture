@@ -16,7 +16,9 @@ app/web/         React 19 + TypeScript + Vite. All API calls go through /api (sr
 compose.yaml     mysql, migrate (one-off), api, scheduler, web
 Makefile         the only entry point for everyday commands
 terraform/       bootstrap/, modules/, stacks/<layer>/, envs/<env>/ (ADR 0007)
-docs/steps/      the learning path, one file per step
+docs/steps/      the step guides, one file per step
+docs/workbook/   one workbook per step: checklists, commands, log (keep in sync with the guide)
+docs/runbook.md, learning-path.md, teaching-guide.md
 docs/costs.md    Tokyo prices, per service, per environment, per step
 docs/app/        how the app works
 docs/adr/        Architecture Decision Records
@@ -83,7 +85,8 @@ Run `make test` before every commit. After Go changes, `make restart` rebuilds t
 - Write like a person: no filler, no hype words ("robust", "seamless", "leverage"), no emoji.
 - Each step doc (`docs/steps/NN-*.md`) has: goal and time, what you will be able to do, numbered sections, hands-on experiments (including breaking something on purpose), check-yourself questions with hidden answers, clean up, next step.
 - ADRs: one decision per file, copied from `docs/adr/template.md`, never rewritten later (supersede with a new one). Add each one to `docs/adr/README.md`.
-- Put a diagram wherever it makes a section easier to understand.
+- Put a diagram wherever it makes a section easier to understand. Every step has its own SVG map (`docs/diagrams/step-NN-*.svg`); update it when the step's architecture changes.
+- When a step guide changes (commands, counts, names), update its workbook and, if it affects operations, the runbook.
 
 ## Diagrams
 

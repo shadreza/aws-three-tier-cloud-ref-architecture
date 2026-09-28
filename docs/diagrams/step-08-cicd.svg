@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1380 620" width="1380" height="620" role="img" aria-label="Step 08 CI/CD: pull requests run ci.yml with no AWS access. A push to master builds the image and web app once, then deploys them to dev, staging and prod. Each deploy job logs in through GitHub OIDC and STS to a role that can only deploy.">
+<style>
+  text { font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .n { stroke-width:1.2; }
+  .n.dash { stroke-dasharray:5 4; stroke-width:1.3; }
+  .ab { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:8.5px; font-weight:600; fill:#fff; }
+  .t { font-size:12px; font-weight:600; }
+  .s { font-size:10.5px; }
+  .gt { font-size:12px; font-weight:600; }
+  .grp { stroke-width:1; }
+  .region { fill:none; stroke:#00A4A6; stroke-width:1.4; stroke-dasharray:7 5; }
+  .vpc { fill:none; stroke:#8C4FFF; stroke-width:1.4; }
+  .pub { stroke:#7AA116; stroke-width:1; }
+  .priv { stroke:#00A4A6; stroke-width:1; }
+  .iso { stroke:#147EBA; stroke-width:1; }
+  .gl { font-size:12px; font-weight:600; }
+  text.reg { fill:#00A4A6; } text.vpcl { fill:#8C4FFF; }
+  .sl { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; letter-spacing:.06em; }
+  text.publ { fill:#7AA116; } text.privl { fill:#00A4A6; } text.isol { fill:#147EBA; }
+  .ar { fill:none; stroke-width:1.4; }
+  .ar.thin { stroke-dasharray:3 3; }
+  .al { font-size:10.5px; paint-order:stroke; stroke-width:3px; stroke-linejoin:round; }
+  .lg { font-size:11px; }
+  svg { color:#5A6877; }
+  .bg { fill:#F3F6F8; }
+  .n { fill:#FFFFFF; stroke:#C6D0D9; }
+  .n.dash { stroke:#15202B; }
+  .t, .gt { fill:#15202B; }
+  .s, .sl, .al, .lg { fill:#5A6877; }
+  .al { stroke:#FFFFFF; }
+  .grp { fill:#F7F9FB; stroke:#C6D0D9; }
+  .pub { fill:rgba(122,161,22,.07); }
+  .priv { fill:rgba(0,164,166,.06); }
+  .iso { fill:rgba(20,126,186,.07); }
+  .ar { stroke:#5A6877; }
+  .mk { fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  svg { color:#95A3B1; }
+  .bg { fill:#0E141A; }
+  .n { fill:#161F28; stroke:#344352; }
+  .n.dash { stroke:#E2E8EE; }
+  .t, .gt { fill:#E2E8EE; }
+  .s, .sl, .al, .lg { fill:#95A3B1; }
+  .al { stroke:#161F28; }
+  .grp { fill:#121A22; stroke:#344352; }
+  .pub { fill:rgba(122,161,22,.10); }
+  .priv { fill:rgba(0,164,166,.09); }
+  .iso { fill:rgba(20,126,186,.12); }
+  .ar { stroke:#95A3B1; }
+  .mk { fill:#95A3B1; }
+  }
+</style>
+<defs>
+  <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="1380" height="620" rx="10"/>
+<rect class="grp" x="20" y="40" width="560" height="540" rx="8"/>
+<text class="gt" x="32" y="60" text-anchor="start">GitHub · shadreza/aws-three-tier-cloud-ref-architecture</text>
+<rect class="n" x="40" y="90" width="170" height="44" rx="6"/>
+<rect x="48" y="98" width="28" height="28" rx="4" fill="#5A6877"/>
+<text class="ab" x="62" y="115.5" text-anchor="middle">PR</text>
+<text class="t" x="84" y="109">pull request</text>
+<text class="s" x="84" y="124">any branch</text>
+<rect class="n" x="40" y="300" width="170" height="44" rx="6"/>
+<rect x="48" y="308" width="28" height="28" rx="4" fill="#5A6877"/>
+<text class="ab" x="62" y="325.5" text-anchor="middle">GIT</text>
+<text class="t" x="84" y="319">push to master</text>
+<text class="s" x="84" y="334">after the PR merges</text>
+<rect class="n" x="260" y="90" width="290" height="44" rx="6"/>
+<rect x="268" y="98" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="282" y="115.5" text-anchor="middle">CI</text>
+<text class="t" x="304" y="109">ci.yml</text>
+<text class="s" x="304" y="124">tests, validate, ARM build · no AWS</text>
+<rect class="n" x="260" y="230" width="290" height="44" rx="6"/>
+<rect x="268" y="238" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="282" y="255.5" text-anchor="middle">BLD</text>
+<text class="t" x="304" y="249">deploy.yml · build</text>
+<text class="s" x="304" y="264">image + web once · artifacts</text>
+<rect class="n" x="260" y="330" width="290" height="44" rx="6"/>
+<rect x="268" y="338" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="282" y="355.5" text-anchor="middle">DEV</text>
+<text class="t" x="304" y="349">environment dev</text>
+<text class="s" x="304" y="364">if DEPLOY_DEV</text>
+<rect class="n" x="260" y="410" width="290" height="44" rx="6"/>
+<rect x="268" y="418" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="282" y="435.5" text-anchor="middle">STG</text>
+<text class="t" x="304" y="429">environment staging</text>
+<text class="s" x="304" y="444">if DEPLOY_STAGING</text>
+<rect class="n" x="260" y="490" width="290" height="44" rx="6"/>
+<rect x="268" y="498" width="28" height="28" rx="4" fill="#DD344C"/>
+<text class="ab" x="282" y="515.5" text-anchor="middle">PRD</text>
+<text class="t" x="304" y="509">environment prod</text>
+<text class="s" x="304" y="524">DEPLOY_PROD + required reviewers</text>
+<rect class="region" x="620" y="40" width="740" height="540" rx="10"/>
+<text class="gl reg" x="634" y="60" text-anchor="start">AWS account · ap-northeast-1 (Tokyo)</text>
+<rect class="n" x="640" y="90" width="230" height="44" rx="6"/>
+<rect x="648" y="98" width="28" height="28" rx="4" fill="#DD344C"/>
+<text class="ab" x="662" y="115.5" text-anchor="middle">OIDC</text>
+<text class="t" x="684" y="109">GitHub OIDC provider</text>
+<text class="s" x="684" y="124">from bootstrap, one per account</text>
+<rect class="n" x="640" y="180" width="230" height="44" rx="6"/>
+<rect x="648" y="188" width="28" height="28" rx="4" fill="#DD344C"/>
+<text class="ab" x="662" y="205.5" text-anchor="middle">STS</text>
+<text class="t" x="684" y="199">AWS STS</text>
+<text class="s" x="684" y="214">credentials for 1 hour</text>
+<rect class="n" x="640" y="270" width="230" height="44" rx="6"/>
+<rect x="648" y="278" width="28" height="28" rx="4" fill="#DD344C"/>
+<text class="ab" x="662" y="295.5" text-anchor="middle">IAM</text>
+<text class="t" x="684" y="289">uptime-dev-github-deploy</text>
+<text class="s" x="684" y="304">trusts repo + environment dev</text>
+<text class="s" x="640" y="350" text-anchor="start">one role per environment;</text>
+<text class="s" x="640" y="366" text-anchor="start">it can deploy and nothing else</text>
+<rect class="n" x="920" y="90" width="240" height="44" rx="6"/>
+<rect x="928" y="98" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="942" y="115.5" text-anchor="middle">ECR</text>
+<text class="t" x="964" y="109">ECR</text>
+<text class="s" x="964" y="124">push uptime-dev/backend:TAG</text>
+<rect class="n" x="920" y="165" width="240" height="44" rx="6"/>
+<rect x="928" y="173" width="28" height="28" rx="4" fill="#E7157B"/>
+<text class="ab" x="942" y="190.5" text-anchor="middle">SSM</text>
+<text class="t" x="964" y="184">image tag</text>
+<text class="s" x="964" y="199">make image-use</text>
+<rect class="n" x="920" y="240" width="240" height="44" rx="6"/>
+<rect x="928" y="248" width="28" height="28" rx="4" fill="#7AA116"/>
+<text class="ab" x="942" y="265.5" text-anchor="middle">S3</text>
+<text class="t" x="964" y="259">state bucket</text>
+<text class="s" x="964" y="274">read dev/*, write compute</text>
+<rect class="n" x="920" y="315" width="240" height="44" rx="6"/>
+<rect x="928" y="323" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="942" y="340.5" text-anchor="middle">ECS</text>
+<text class="t" x="964" y="334">compute stack</text>
+<text class="s" x="964" y="349">task definitions + service</text>
+<rect class="n" x="920" y="390" width="240" height="44" rx="6"/>
+<rect x="928" y="398" width="28" height="28" rx="4" fill="#7AA116"/>
+<text class="ab" x="942" y="415.5" text-anchor="middle">S3</text>
+<text class="t" x="964" y="409">web bucket</text>
+<text class="s" x="964" y="424">make web-upload</text>
+<rect class="n" x="920" y="465" width="240" height="44" rx="6"/>
+<rect x="928" y="473" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="942" y="490.5" text-anchor="middle">CF</text>
+<text class="t" x="964" y="484">CloudFront</text>
+<text class="s" x="964" y="499">invalidate /index.html</text>
+<path class="ar" d="M210,112 H260" marker-end="url(#h)"/>
+<path class="ar thin" d="M125,300 V190 H405 V134" marker-end="url(#h)"/>
+<path class="ar" d="M210,322 H235 V252 H260" marker-end="url(#h)"/>
+<path class="ar" d="M405,274 V330" marker-end="url(#h)"/>
+<path class="ar" d="M405,374 V410" marker-end="url(#h)"/>
+<path class="ar" d="M405,454 V490" marker-end="url(#h)"/>
+<path class="ar" d="M550,352 H600"/>
+<path class="ar" d="M550,432 H600"/>
+<path class="ar" d="M550,512 H600 V202"/>
+<path class="ar" d="M600,202 H640" marker-end="url(#h)"/>
+<text class="al" x="595" y="196" text-anchor="end">token</text>
+<path class="ar thin" d="M755,134 V180" marker-end="url(#h)"/>
+<text class="al" x="763" y="162" text-anchor="start">checks the signature</text>
+<path class="ar" d="M755,224 V270" marker-end="url(#h)"/>
+<path class="ar" d="M870,292 H895"/>
+<path class="ar" d="M895,112 V487"/>
+<path class="ar" d="M895,112 H920" marker-end="url(#h)"/>
+<path class="ar" d="M895,187 H920" marker-end="url(#h)"/>
+<path class="ar" d="M895,262 H920" marker-end="url(#h)"/>
+<path class="ar" d="M895,337 H920" marker-end="url(#h)"/>
+<path class="ar" d="M895,412 H920" marker-end="url(#h)"/>
+<path class="ar" d="M895,487 H920" marker-end="url(#h)"/>
+<rect x="20" y="598" width="12" height="12" rx="3" fill="#E7157B"/>
+<text class="lg" x="38" y="608">Workflows / config</text>
+<rect x="186" y="598" width="12" height="12" rx="3" fill="#ED7100"/>
+<text class="lg" x="204" y="608">Deploy targets</text>
+<rect x="324" y="598" width="12" height="12" rx="3" fill="#DD344C"/>
+<text class="lg" x="342" y="608">Identity</text>
+<rect x="420" y="598" width="12" height="12" rx="3" fill="#7AA116"/>
+<text class="lg" x="438" y="608">Storage</text>
+<path class="ar" d="M509,604 h26"/>
+<text class="lg" x="541" y="608">Flow</text>
+<path class="ar thin" d="M591,604 h26"/>
+<text class="lg" x="623" y="608">Trust check</text>
+</svg>

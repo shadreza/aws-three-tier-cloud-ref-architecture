@@ -10,6 +10,7 @@ You build it three times: on paper, by hand in the console, and in Terraform.
 - **Cost:** about $0.07 an hour while it exists (mostly the NAT gateway). About $0.20 for the whole step if you clean up at the end. See [costs.md](../costs.md).
 - **You need:** an AWS account where you can create VPCs and IAM roles, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), `jq`, Docker, make
 - **Branch:** `step-02/aws-network`
+- **Workbook:** [docs/workbook/02-aws-network.md](../workbook/02-aws-network.md) (checklists, commands in order, a log to fill in)
 
 ## What you will be able to do after this step
 
@@ -457,7 +458,7 @@ The bucket cannot store its own state, so `terraform/bootstrap` keeps a local st
 make tf-bootstrap account_id=123456789012 budget_email=you@example.com
 ```
 
-Terraform shows the plan and asks `Do you want to perform these actions?`. You should see `Plan: 7 to add` (the bucket, five settings on it, and the budget). Type `yes`. At the end:
+Terraform shows the plan and asks `Do you want to perform these actions?`. You should see `Plan: 7 to add` (the bucket, five settings on it, and the budget). On the current `master` it is `Plan: 8 to add`: the eighth is the GitHub OIDC provider that step 08 uses. It is free and harmless to have early. Type `yes`. At the end:
 
 ```
 state_bucket = "uptime-tfstate-123456789012"

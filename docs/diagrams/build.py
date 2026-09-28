@@ -107,6 +107,11 @@ class Svg:
         start = ' marker-start="url(#h)"' if both else ""
         self.add(f'<path class="{cls}" d="{d}" marker-end="url(#h)"{start}/>')
 
+    def line(self, d, thin=False):
+        """A connector with no arrow head, for trunks that branch into arrows."""
+        cls = "ar thin" if thin else "ar"
+        self.add(f'<path class="{cls}" d="{d}"/>')
+
     def legend(self, y, items):
         x = 20
         for kind, value, label in items:
@@ -359,7 +364,439 @@ def aws_network():
     ])
     s.save("aws-network.svg")
 
+def step03_data():
+    s = Svg(1380, 640, "Step 03 data layer: RDS MySQL in the isolated subnets with TLS required, a debug host "
+                       "reached through an Instance Connect Endpoint, secrets in Secrets Manager and reports in S3.")
+    s.card(20, 170, "client", "SH", "You", "laptop · SSH via EICE", w=160)
+    s.card(20, 390, "client", "TF", "Terraform", "ephemeral password", w=160)
+
+    s.rect("region", 210, 40, 1150, 560, rx=10)
+    s.text("gl reg", 224, 60, "AWS Region · ap-northeast-1 (Tokyo)")
+    s.rect("vpc", 230, 80, 640, 500)
+    s.text("gl vpcl", 244, 99, "VPC · 10.20.0.0/16 (dev)")
+    s.rect("priv", 250, 110, 600, 140, rx=6)
+    s.text("sl privl", 262, 128, "PRIVATE SUBNETS")
+    s.rect("iso", 250, 270, 600, 290, rx=6)
+    s.text("sl isol", 262, 288, "ISOLATED SUBNETS · NO ROUTE OUT")
+
+    s.card(270, 160, "network", "EICE", "Connect endpoint", "Instance Connect · free", w=180)
+    s.card(470, 160, "compute", "EC2", "debug host", "t4g.nano · optional", w=170)
+    s.card(660, 160, "compute", "ECS", "app tasks", "steps 04 and 06", w=170)
+
+    s.card(280, 330, "database", "RDS", "RDS MySQL 8.4", "primary · 1a", w=180)
+    s.card(620, 420, "database", "RDS", "RDS standby", "1c · prod Multi-AZ only", w=210)
+    s.text("s", 270, 480, "DB subnet group: the two isolated subnets")
+    s.text("s", 270, 498, "parameter group: require_secure_transport = 1")
+    s.text("s", 270, 516, "gp3, 20 GB, grows to 100 GB · encrypted")
+    s.text("s", 270, 534, "backups at 02:00 JST · 1 day dev, 7 days prod")
+    s.text("s", 270, 552, "the app checks RDS's certificate (DB_TLS_CA)")
+
+    s.card(900, 120, "security", "SM", "uptime-dev/db", "password, host, port", w=210)
+    s.card(900, 190, "security", "SM", "uptime-dev/admin-token", "ADMIN_TOKEN", w=210)
+    s.card(900, 300, "storage", "S3", "reports bucket", "reports/*.csv · 400 days", w=210)
+    s.card(900, 410, "integration", "CW", "CloudWatch Logs", "RDS error + slow query", w=210)
+
+    s.arrow("M180,192 H270")
+    s.text("al", 225, 184, "SSH", anchor="middle")
+    s.arrow("M450,182 H470")
+    s.arrow("M555,204 V318 H370 V330")
+    s.text("al", 462, 312, "3306 · TLS", anchor="middle")
+    s.arrow("M745,204 V340 H460")
+    s.text("al", 752, 300, "3306 · TLS")
+    s.arrow("M460,364 H560 V442 H620", thin=True, both=True)
+    s.text("al", 566, 400, "copy (prod)")
+    s.arrow("M830,176 H870 V142 H900", thin=True)
+    s.text("al", 850, 170, "secrets", anchor="middle")
+    s.arrow("M830,196 H880 V322 H900")
+    s.text("al", 886, 290, "CSV", anchor="end")
+    s.arrow("M180,412 H240 V352 H280", thin=True)
+    s.text("al", 200, 440, "password_wo, never in state")
+
+    s.legend(628, [
+        ("cat", "database", "Database"),
+        ("cat", "security", "Secrets"),
+        ("cat", "storage", "Storage"),
+        ("cat", "compute", "Compute"),
+        ("cat", "network", "Networking"),
+        ("line", False, "Traffic"),
+        ("line", True, "Control / setup / prod only"),
+    ])
+    s.save("step-03-data.svg")
+
+
+def step04_compute():
+    s = Svg(1380, 720, "Step 04 compute: an internal load balancer and an ECS Fargate ARM cluster in the private "
+                       "subnets. Each API task runs migrate first, then api. Check and rollup task definitions "
+                       "wait for the scheduler. Images come from ECR, secrets from Secrets Manager.")
+    s.card(20, 90, "client", "SH", "You or CI", "image-push, image-use", w=170)
+
+    s.rect("region", 210, 40, 1150, 640, rx=10)
+    s.text("gl reg", 224, 60, "AWS Region · ap-northeast-1 (Tokyo)")
+    s.rect("vpc", 230, 80, 700, 580)
+    s.text("gl vpcl", 244, 99, "VPC · 10.20.0.0/16 (dev)")
+    s.rect("priv", 250, 110, 660, 420, rx=6)
+    s.text("sl privl", 262, 128, "PRIVATE SUBNETS · BOTH ZONES")
+    s.rect("iso", 250, 544, 660, 100, rx=6)
+    s.text("sl isol", 262, 562, "ISOLATED SUBNETS")
+
+    s.card(270, 160, "network", "ALB", "internal ALB", ":80 · health /api/health", w=190)
+    s.card(270, 300, "compute", "EC2", "debug host", "curl the ALB (testing)", w=190)
+    s.text("s", 270, 390, "execution role (used by ECS):")
+    s.text("s", 270, 406, "pull image, read secrets, logs")
+    s.text("s", 270, 430, "task roles (used by the app):")
+    s.text("s", 270, 446, "api reads S3, jobs write S3")
+
+    s.rect("grp", 490, 140, 380, 380)
+    s.text("gt", 502, 508, "ECS cluster uptime-dev · Fargate ARM64")
+    s.rect("grp", 510, 180, 350, 130)
+    s.text("s", 522, 199, "api service · task uptime-dev-api")
+    s.card(520, 215, "compute", "ECS", "migrate", "runs first, exits", w=160, dash=True)
+    s.card(700, 215, "compute", "ECS", "api", ":8080 · after migrate", w=155)
+    s.card(505, 350, "compute", "ECS", "check", "task definition · step 06", w=175, dash=True)
+    s.card(505, 420, "compute", "ECS", "rollup", "task definition · step 06", w=175, dash=True)
+
+    s.card(700, 580, "database", "RDS", "RDS MySQL", "from step 03", w=170)
+
+    s.card(970, 110, "compute", "ECR", "ECR", "uptime-dev/backend · immutable", w=220)
+    s.card(970, 180, "integration", "SSM", "image tag", "/uptime-dev/image-tag", w=220)
+    s.card(970, 250, "security", "SM", "Secrets Manager", "DB_PASSWORD, ADMIN_TOKEN", w=220)
+    s.card(970, 320, "storage", "S3", "reports bucket", "api reads, jobs write", w=220)
+    s.card(970, 390, "integration", "CW", "CloudWatch Logs", "/ecs/uptime-dev/api, /jobs", w=220)
+    s.card(970, 460, "integration", "AS", "Auto Scaling", "prod: 2 to 4 API tasks", w=220)
+
+    s.arrow("M105,90 V26 H1080 V110")
+    s.text("al", 640, 20, "docker push (arm64), then the tag goes to SSM", anchor="middle")
+    s.arrow("M365,300 V204")
+    s.text("al", 373, 260, "HTTP :80")
+    s.arrow("M460,170 H778 V215")
+    s.text("al", 620, 164, "forward to :8080", anchor="middle")
+    s.arrow("M680,237 H700", thin=True)
+    s.arrow("M778,259 V580")
+    s.text("al", 786, 330, "3306 TLS")
+    s.arrow("M592,464 V602 H700")
+    s.text("al", 600, 590, "jobs: 3306")
+    s.line("M870,300 H950", thin=True)
+    s.line("M950,132 V412", thin=True)
+    for y in (132, 272, 342, 412):
+        s.arrow(f"M950,{y} H970", thin=True)
+    s.text("al", 910, 292, "pull, read, log", anchor="middle")
+    s.arrow("M1080,180 V154", thin=True)
+
+    s.legend(708, [
+        ("cat", "compute", "Compute"),
+        ("cat", "network", "Networking"),
+        ("cat", "database", "Database"),
+        ("cat", "storage", "Storage"),
+        ("cat", "security", "Security"),
+        ("cat", "integration", "Config / logs"),
+        ("dash", None, "Runs, then stops"),
+        ("line", False, "Traffic"),
+        ("line", True, "Control / lookup"),
+    ])
+    s.save("step-04-compute.svg")
+
+
+def step05_edge():
+    s = Svg(1380, 600, "Step 05 edge: users reach CloudFront, checked by WAF. The default behavior serves the "
+                       "web app from a private S3 bucket through OAC; /api/* goes through a VPC origin to the "
+                       "internal load balancer and the API tasks.")
+    s.card(20, 250, "client", "WWW", "Users", "browser, anywhere", w=150)
+    s.text("sl", 212, 116, "EDGE · GLOBAL")
+    s.card(210, 160, "security", "WAF", "WAF (us-east-1)", "rate limit + 3 rule groups", w=210)
+    s.card(210, 250, "network", "CF", "CloudFront", "HTTPS · PriceClass_200", w=210)
+    s.card(210, 340, "compute", "FN", "SPA function", "no dot in path: /index.html", w=210)
+    s.card(210, 430, "security", "ACM", "ACM + Route 53", "optional custom domain", w=210)
+
+    s.rect("region", 460, 40, 900, 520, rx=10)
+    s.text("gl reg", 474, 60, "AWS Region · ap-northeast-1 (Tokyo)")
+    s.rect("vpc", 480, 80, 640, 460)
+    s.text("gl vpcl", 494, 99, "VPC · 10.20.0.0/16 (dev)")
+    s.rect("pub", 500, 110, 600, 70, rx=6)
+    s.text("sl publ", 512, 128, "PUBLIC SUBNETS")
+    s.text("s", 512, 160, "only the NAT gateway lives here")
+    s.rect("priv", 500, 200, 600, 320, rx=6)
+    s.text("sl privl", 512, 218, "PRIVATE SUBNETS")
+
+    s.card(520, 250, "network", "ENI", "VPC origin", "CloudFront's interfaces", w=200)
+    s.card(800, 250, "network", "ALB", "internal ALB", ":80 · no public IP", w=190)
+    s.card(800, 380, "compute", "ECS", "API tasks", ":8080 · sg app", w=190)
+    s.text("s", 520, 330, "sg alb allows :80 only from")
+    s.text("s", 520, 346, "CloudFront-VPCOrigins-Service-SG")
+    s.text("s", 520, 362, "(and the debug host)")
+
+    s.card(1150, 250, "storage", "S3", "web bucket", "private · OAC only", w=190)
+
+    s.arrow("M170,272 H210")
+    s.arrow("M315,250 V204", thin=True, both=True)
+    s.text("al", 323, 232, "every request")
+    s.arrow("M315,294 V340", thin=True)
+    s.text("al", 323, 322, "web requests only")
+    s.arrow("M420,262 H440 V24 H1245 V250")
+    s.text("al", 840, 18, "default behavior · cached · signed with OAC", anchor="middle")
+    s.arrow("M420,282 H520")
+    s.text("al", 470, 274, "/api/* · never cached", anchor="middle")
+    s.arrow("M720,272 H800")
+    s.text("al", 760, 264, ":80", anchor="middle")
+    s.arrow("M895,294 V380")
+    s.text("al", 903, 342, ":8080")
+
+    s.legend(588, [
+        ("cat", "network", "Networking"),
+        ("cat", "security", "Security"),
+        ("cat", "compute", "Compute"),
+        ("cat", "storage", "Storage"),
+        ("line", False, "Request"),
+        ("line", True, "Check / rewrite"),
+    ])
+    s.save("step-05-edge.svg")
+
+
+def step06_jobs():
+    s = Svg(1560, 580, "Step 06 jobs: EventBridge Scheduler starts the check task every minute and the rollup "
+                       "task every hour through ECS RunTask. Tasks run in the private subnets, reach websites "
+                       "through the NAT gateway, and write to RDS and S3.")
+    s.rect("region", 20, 40, 1340, 500, rx=10)
+    s.text("gl reg", 34, 60, "AWS Region · ap-northeast-1 (Tokyo)")
+
+    s.rect("grp", 40, 80, 270, 190)
+    s.text("gt", 52, 99, "schedule group uptime-dev")
+    s.card(55, 120, "integration", "EB", "check", "rate(1 minute) · 0 retries", w=240)
+    s.card(55, 190, "integration", "EB", "rollup", "rate(1 hour) · 2 retries", w=240)
+    s.card(55, 300, "security", "IAM", "scheduler role", "RunTask + PassRole only", w=240)
+    s.card(55, 390, "storage", "S3", "reports bucket", "reports/YYYY-MM-DD.csv", w=240)
+    s.card(55, 460, "integration", "CW", "CloudWatch Logs", "/ecs/uptime-dev/jobs", w=240)
+
+    s.rect("vpc", 560, 80, 560, 440)
+    s.text("gl vpcl", 574, 99, "VPC · 10.20.0.0/16 (dev)")
+    s.rect("pub", 580, 110, 520, 80, rx=6)
+    s.text("sl publ", 592, 128, "PUBLIC")
+    s.rect("priv", 580, 205, 520, 205, rx=6)
+    s.text("sl privl", 1088, 223, "PRIVATE · sg jobs", anchor="end")
+    s.rect("iso", 580, 420, 520, 85, rx=6)
+    s.text("sl isol", 1088, 438, "ISOLATED", anchor="end")
+
+    s.card(620, 130, "network", "NAT", "NAT gateway", "fixed Elastic IP", w=180)
+    s.card(600, 240, "compute", "ECS", "check task", "runs a few seconds", w=200, dash=True)
+    s.card(600, 320, "compute", "ECS", "rollup task", "summaries + CSV", w=200, dash=True)
+    s.text("s", 600, 386, "lock uptime-check: a run that starts while")
+    s.text("s", 600, 401, "another is busy skips its turn")
+    s.card(860, 445, "database", "RDS", "RDS MySQL", "results, summaries", w=200)
+    s.card(1380, 130, "client", "WWW", "Websites", "checked every minute", w=160)
+
+    # schedules -> tasks (ecs:RunTask)
+    s.arrow("M295,142 H570 V272 H600")
+    s.text("al", 430, 136, "ecs:RunTask", anchor="middle")
+    s.arrow("M295,212 H545 V342 H600")
+    s.text("al", 430, 206, "ecs:RunTask", anchor="middle")
+    s.arrow("M175,300 V270", thin=True)
+    s.text("al", 183, 290, "used by both schedules")
+    # check -> NAT -> websites
+    s.arrow("M700,240 V174")
+    s.text("al", 708, 200, "HTTP(S) checks")
+    s.arrow("M800,152 H1380")
+    s.text("al", 1090, 144, "through the internet gateway", anchor="middle")
+    # tasks -> RDS
+    s.arrow("M800,262 H920 V445")
+    s.arrow("M800,342 H900 V445")
+    s.text("al", 928, 300, "3306")
+    # rollup -> S3, logs
+    s.line("M600,356 H530 V412")
+    s.arrow("M530,412 H295")
+    s.text("al", 410, 404, "CSV", anchor="middle")
+    s.arrow("M530,412 V482 H295", thin=True)
+    s.text("al", 410, 476, "logs (both tasks)", anchor="middle")
+
+    s.legend(568, [
+        ("cat", "integration", "Scheduler / logs"),
+        ("cat", "compute", "Compute"),
+        ("cat", "network", "Networking"),
+        ("cat", "database", "Database"),
+        ("cat", "storage", "Storage"),
+        ("cat", "security", "IAM"),
+        ("dash", None, "Runs, then stops"),
+        ("line", False, "Traffic"),
+        ("line", True, "Control / logs"),
+    ])
+    s.save("step-06-jobs.svg")
+
+
+def step07_observability():
+    s = Svg(1380, 640, "Step 07 observability: AWS metrics and metrics made from the app's JSON logs feed ten "
+                       "alarms, which notify an SNS topic that emails you. A dashboard and saved Logs Insights "
+                       "queries are for looking deeper.")
+    s.text("sl", 40, 44, "WHAT PRODUCES DATA")
+    rows = [
+        ("network", "ALB", "load balancer", "5xx, latency, healthy hosts"),
+        ("compute", "ECS", "ECS service", "CPU, memory"),
+        ("database", "RDS", "RDS", "CPU, credits, free storage"),
+        ("integration", "EB", "Scheduler", "TargetErrorCount"),
+        ("security", "WAF", "WAF (us-east-1)", "on the dashboard, no alarm"),
+        ("integration", "CW", "JSON app logs", "/ecs/uptime-dev/api, /jobs"),
+    ]
+    for i, (cat, abbr, title, sub) in enumerate(rows):
+        s.card(40, 60 + i * 80, cat, abbr, title, sub, w=240)
+
+    s.card(330, 460, "integration", "MF", "metric filters", "CheckRuns, MonitorsDown, Errors", w=230)
+
+    s.rect("grp", 610, 50, 300, 440)
+    s.text("gt", 622, 70, "10 alarms · Uptime/dev and AWS/*")
+    alarms = ["api-5xx", "alb-5xx", "api-no-healthy-tasks", "api-slow (p95 over 1 s)", "db-cpu-high",
+              "db-cpu-credits-low", "db-storage-low", "scheduler-errors",
+              "checks-stopped (silence = alarm)", "app-errors"]
+    for i, a in enumerate(alarms):
+        s.text("s", 630, 100 + i * 36, a)
+
+    s.card(960, 200, "integration", "SNS", "SNS topic", "uptime-dev-alerts", w=200)
+    s.card(1190, 200, "client", "@", "You", "ALARM and OK emails", w=170)
+    s.card(960, 370, "integration", "LI", "Logs Insights", "3 saved queries", w=200)
+    s.card(960, 470, "integration", "DSH", "dashboard", "9 widgets, one screen", w=200)
+
+    for i in range(4):
+        y = 82 + i * 80
+        s.arrow(f"M280,{y} H610")
+    s.arrow("M280,482 H330")
+    s.arrow("M560,482 H610")
+    s.arrow("M910,222 H960")
+    s.text("al", 935, 214, "notify", anchor="middle")
+    s.arrow("M1160,222 H1190")
+    s.arrow("M160,504 V600 H1190 V392 H1160", thin=True)
+    s.text("al", 600, 594, "query the raw logs when an alarm fires", anchor="middle")
+    s.arrow("M910,440 H935 V492 H960", thin=True)
+    s.text("al", 918, 470, "graphs", anchor="end")
+
+    s.legend(628, [
+        ("cat", "integration", "CloudWatch / SNS"),
+        ("cat", "network", "Networking"),
+        ("cat", "compute", "Compute"),
+        ("cat", "database", "Database"),
+        ("cat", "security", "Security"),
+        ("line", False, "Data / notification"),
+        ("line", True, "Looking deeper"),
+    ])
+    s.save("step-07-observability.svg")
+
+
+def step08_cicd():
+    s = Svg(1380, 620, "Step 08 CI/CD: pull requests run ci.yml with no AWS access. A push to master builds the "
+                       "image and web app once, then deploys them to dev, staging and prod. Each deploy job logs in "
+                       "through GitHub OIDC and STS to a role that can only deploy.")
+    s.rect("grp", 20, 40, 560, 540)
+    s.text("gt", 32, 60, "GitHub · shadreza/aws-three-tier-cloud-ref-architecture")
+    s.card(40, 90, "client", "PR", "pull request", "any branch", w=170)
+    s.card(40, 300, "client", "GIT", "push to master", "after the PR merges", w=170)
+    s.card(260, 90, "integration", "CI", "ci.yml", "tests, validate, ARM build · no AWS", w=290)
+    s.card(260, 230, "integration", "BLD", "deploy.yml · build", "image + web once · artifacts", w=290)
+    s.card(260, 330, "compute", "DEV", "environment dev", "if DEPLOY_DEV", w=290)
+    s.card(260, 410, "compute", "STG", "environment staging", "if DEPLOY_STAGING", w=290)
+    s.card(260, 490, "security", "PRD", "environment prod", "DEPLOY_PROD + required reviewers", w=290)
+
+    s.rect("region", 620, 40, 740, 540, rx=10)
+    s.text("gl reg", 634, 60, "AWS account · ap-northeast-1 (Tokyo)")
+    s.card(640, 90, "security", "OIDC", "GitHub OIDC provider", "from bootstrap, one per account", w=230)
+    s.card(640, 180, "security", "STS", "AWS STS", "credentials for 1 hour", w=230)
+    s.card(640, 270, "security", "IAM", "uptime-dev-github-deploy", "trusts repo + environment dev", w=230)
+    s.text("s", 640, 350, "one role per environment;")
+    s.text("s", 640, 366, "it can deploy and nothing else")
+
+    targets = [
+        ("compute", "ECR", "ECR", "push uptime-dev/backend:TAG"),
+        ("integration", "SSM", "image tag", "make image-use"),
+        ("storage", "S3", "state bucket", "read dev/*, write compute"),
+        ("compute", "ECS", "compute stack", "task definitions + service"),
+        ("storage", "S3", "web bucket", "make web-upload"),
+        ("network", "CF", "CloudFront", "invalidate /index.html"),
+    ]
+    for i, (cat, abbr, title, sub) in enumerate(targets):
+        s.card(920, 90 + i * 75, cat, abbr, title, sub, w=240)
+
+    s.arrow("M210,112 H260")
+    s.arrow("M125,300 V190 H405 V134", thin=True)
+    s.arrow("M210,322 H235 V252 H260")
+    s.arrow("M405,274 V330")
+    s.arrow("M405,374 V410")
+    s.arrow("M405,454 V490")
+    s.line("M550,352 H600")
+    s.line("M550,432 H600")
+    s.line("M550,512 H600 V202")
+    s.arrow("M600,202 H640")
+    s.text("al", 595, 196, "token", anchor="end")
+    s.arrow("M755,134 V180", thin=True)
+    s.text("al", 763, 162, "checks the signature")
+    s.arrow("M755,224 V270")
+    s.line("M870,292 H895")
+    s.line("M895,112 V487")
+    for i in range(6):
+        s.arrow(f"M895,{112 + i * 75} H920")
+
+    s.legend(608, [
+        ("cat", "integration", "Workflows / config"),
+        ("cat", "compute", "Deploy targets"),
+        ("cat", "security", "Identity"),
+        ("cat", "storage", "Storage"),
+        ("line", False, "Flow"),
+        ("line", True, "Trust check"),
+    ])
+    s.save("step-08-cicd.svg")
+
+
+def step09_environments():
+    s = Svg(1380, 560, "Step 09 environments: one bootstrap per account (state bucket, budget, GitHub OIDC), "
+                       "and three environments made from the same code with different values: dev, staging "
+                       "and prod, each with its own VPC range and state files.")
+    s.rect("region", 20, 40, 1340, 480, rx=10)
+    s.text("gl reg", 34, 60, "AWS account · ap-northeast-1 (Tokyo)")
+
+    s.rect("grp", 40, 96, 300, 400)
+    s.text("gt", 52, 115, "once per account · bootstrap")
+    s.card(55, 135, "storage", "S3", "uptime-tfstate-ACCOUNT", "one key per env and stack", w=270)
+    s.card(55, 215, "integration", "BUD", "monthly budget", "email at 50, 80, 100%", w=270)
+    s.card(55, 295, "security", "OIDC", "GitHub OIDC provider", "used by the cicd roles", w=270)
+    s.text("s", 55, 380, "prod can live in its own AWS account,")
+    s.text("s", 55, 396, "with its own bootstrap and bucket")
+
+    envs = [
+        (370, "uptime-dev · 10.20.0.0/16", "1 NAT gateway", "db.t4g.micro, single-AZ", "API: 1 task, 0.25 vCPU", "about $120 / month"),
+        (690, "uptime-staging · 10.30.0.0/16", "1 NAT gateway", "db.t4g.micro, single-AZ", "API: 1 task, 0.25 vCPU", "about $120 / month"),
+        (1010, "uptime-prod · 10.40.0.0/16", "2 NAT gateways (per_az)", "db.t4g.small, Multi-AZ", "API: 2 to 4 tasks, 0.5 vCPU", "about $253 / month"),
+    ]
+    for x, label, nat, db, api, cost in envs:
+        w = 330 if x == 1010 else 300
+        s.rect("vpc", x, 96, w, 400)
+        s.text("gl vpcl", x + 14, 115, label)
+        s.card(x + 15, 140, "network", "NAT", "network", nat, w=w - 30)
+        s.card(x + 15, 210, "database", "RDS", "database", db, w=w - 30)
+        s.card(x + 15, 280, "compute", "ECS", "compute", api, w=w - 30)
+        s.card(x + 15, 350, "network", "CF", "edge", "own CloudFront + WAF", w=w - 30)
+        env = label.split(" ")[0].replace("uptime-", "")
+        s.text("s", x + 15, 430, f"state: {env}/&lt;stack&gt;.tfstate")
+        s.text("s", x + 15, 448, f"values: terraform/envs/{env}/")
+        s.text("t", x + 15, 476, cost)
+
+    s.line("M300,135 V80 H1175", thin=True)
+    for x in (520, 840, 1175):
+        s.arrow(f"M{x},80 V96", thin=True)
+    s.text("al", 700, 74, "state files", anchor="middle")
+
+    s.legend(548, [
+        ("cat", "network", "Networking"),
+        ("cat", "database", "Database"),
+        ("cat", "compute", "Compute"),
+        ("cat", "storage", "Storage"),
+        ("cat", "security", "Identity"),
+        ("cat", "integration", "Budget"),
+        ("line", True, "Terraform state"),
+    ])
+    s.save("step-09-environments.svg")
+
+
 local_architecture()
 aws_architecture()
 aws_network()
+step03_data()
+step04_compute()
+step05_edge()
+step06_jobs()
+step07_observability()
+step08_cicd()
+step09_environments()
 print("done")
