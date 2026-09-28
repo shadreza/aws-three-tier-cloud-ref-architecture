@@ -40,7 +40,7 @@ For the build:
 - If a change needs more than a compute deploy (for example a new security group rule), the CI apply fails with `AccessDenied`. That is on purpose: a person applies that stack, and the next deploy goes through.
 - The images in dev, staging and prod are the same bytes. The tag is the git commit.
 - Deploys of one environment never run at the same time (`concurrency`), so two merges cannot fight over the Terraform state.
-- ARM runners (`ubuntu-24.04-arm`) are free for public repositories. A private repository needs a paid plan for them, or QEMU emulation on x86 runners (slow).
+- ARM runners (`ubuntu-24.04-arm`) are free for public repositories. A private repository needs a paid plan for them, or can build on x86 runners: the Dockerfile cross-compiles, so that works without emulation; only the `image` check in `ci.yml` would then not be a native ARM build.
 
 ## When we would change this
 

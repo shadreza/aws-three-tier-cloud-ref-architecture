@@ -100,7 +100,7 @@ The OIDC provider is one per AWS account. `terraform/bootstrap` now makes it (`g
 make tf-bootstrap account_id=ACCOUNT budget_email=you@example.com
 ```
 
-You should see `Plan: 1 to add` (`aws_iam_openid_connect_provider.github`) and, after `yes`, the output `github_oidc_provider_arn = "arn:aws:iam::ACCOUNT:oidc-provider/token.actions.githubusercontent.com"`.
+If you bootstrapped in step 02, you should see `Plan: 1 to add` (`aws_iam_openid_connect_provider.github`). (Someone bootstrapping a new account from this step on gets all 8 resources at once, and this re-run shows no changes.) After `yes`, the output is `github_oidc_provider_arn = "arn:aws:iam::ACCOUNT:oidc-provider/token.actions.githubusercontent.com"`.
 
 Look at it in **IAM, Identity providers**. The audience is `sts.amazonaws.com`. The provider alone gives nobody anything; roles decide who may use it.
 
@@ -108,7 +108,11 @@ To see the trust policy idea by hand, open **IAM, Roles, Create role, Web identi
 
 ## 4. Terraform and GitHub setup
 
-### 4.1 The deploy role
+### 4.1 Commit your account ID
+
+The deploy job checks out the repository and runs the same `make` targets you do, so it reads `terraform/envs/dev/backend.hcl` and `terraform/envs/dev/common.tfvars` from git. If they still say `000000000000`, the first deploy fails at `terraform init`. Commit the real account ID (step 02, 8.3). An account ID is not a secret: it identifies an account, it does not give access to it.
+
+### 4.2 The deploy role
 
 `terraform/envs/dev/cicd.tfvars` names the repository that may deploy:
 
@@ -129,7 +133,7 @@ You should see `Plan: 2 to add` (the role and its policy) and:
 deploy_role_arn = "arn:aws:iam::ACCOUNT:role/uptime-dev-github-deploy"
 ```
 
-### 4.2 The GitHub environments
+### 4.3 The GitHub environments
 
 With `gh` (or in the repository's **Settings, Environments**):
 
@@ -147,7 +151,7 @@ The first command prints the environment as JSON; the others print `✓ Created 
 
 For prod later: create the `prod` environment, add **Required reviewers** (yourself or the team) in its settings, set its own `AWS_DEPLOY_ROLE_ARN` from `make tf-output env=prod stack=cicd`, and set `DEPLOY_PROD` to `true`.
 
-### 4.3 Protect `master`
+### 4.4 Protect `master`
 
 In **Settings, Branches** (or **Rules**), add a rule for `master`: require a pull request, and require the status checks `backend`, `web`, `terraform` and `image` from `ci`. Now nothing reaches `master`, and so nothing is deployed, without passing CI.
 
@@ -179,15 +183,15 @@ You should see the new response. Nobody ran a command on a laptop.
 
 **a) Code that does not compile.** On a branch, break a Go file (delete a closing brace) and push. `ci` fails in the `backend` and `image` jobs. With branch protection, the merge button stays grey. Nothing is deployed.
 
-**b) Another repository tries to use the role.** The trust policy only accepts `repo:shadreza/aws-three-tier-cloud-ref-architecture:environment:dev`. A fork, or a job in this repository without `environment: dev`, gets `Not authorized to perform sts:AssumeRoleWithWebIdentity`. You can see this by temporarily removing the `environment:` line from `deploy-environment.yml` on a branch and running the workflow with **Run workflow** on that branch (the token's `sub` becomes `repo:...:ref:refs/heads/<branch>`). Undo the change.
+**b) A job outside the environment tries to use the role.** The trust policy only accepts `repo:shadreza/aws-three-tier-cloud-ref-architecture:environment:dev`. To see it refuse, on a test branch edit `deploy-environment.yml`: remove the `environment:` line, and replace `${{ vars.AWS_DEPLOY_ROLE_ARN }}` with the role ARN itself (without the environment, the job cannot see the environment's variables). Run the workflow on that branch with **Run workflow**. The login step fails with `Not authorized to perform sts:AssumeRoleWithWebIdentity`: the token's `sub` is now `repo:...:ref:refs/heads/<branch>`, which the role does not trust. A fork gets the same answer. Delete the test branch.
 
-**c) A change that needs more than a deploy.** On a branch, change `log_retention_days = 14` to `30` in `terraform/envs/dev/compute.tfvars`, and merge it. The deploy runs (the file is in `deploy.yml`'s `paths`), the plan shows two log groups to update, and the apply fails:
+**c) A change that needs more than a deploy.** On a branch, change `log_retention_days = 14` to `30` in `terraform/envs/dev/compute.tfvars`, and merge it. The deploy runs (the file is in `deploy.yml`'s `paths`), the plan shows three new task definitions, the service update and the two log groups to update, and the apply fails:
 
 ```
 Error: setting CloudWatch Logs Log Group (/ecs/uptime-dev/api) retention policy: ... AccessDenied: ... is not authorized to perform: logs:PutRetentionPolicy
 ```
 
-The deploy role may register task definitions and update the service, not change log groups. The image did not change, so the log groups were the only change in the plan, and nothing was applied. (In a plan with several changes, Terraform applies the ones it is allowed to, stops at the refusal, and the state records exactly what happened, so the next apply picks up from there.) A person applies it (`make tf-plan env=dev stack=compute` and `make tf-apply ...`), then re-runs the failed workflow, which now has nothing left but the deploy itself.
+The deploy role may register task definitions and update the service, not change log groups. The task definitions use the log groups, so Terraform updates the log groups first; that is refused, and nothing after it is applied: the service still runs the old revision. The state records exactly what happened, so the next apply picks up from there. A person applies it (`make tf-plan env=dev stack=compute` and `make tf-apply ...`), then re-runs the failed workflow, which now has nothing left but the deploy itself.
 
 **d) An approval.** With `DEPLOY_PROD = true` and required reviewers on `prod`, merge a change. The `prod` job shows **Waiting for review**. Nothing happens in prod until someone clicks **Approve and deploy**, and GitHub records who did.
 
