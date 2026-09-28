@@ -177,14 +177,13 @@ Try pushing the same tag again. You should see `tag invalid: The image tag '...'
 
    (Secret ARNs end in six random characters, hence the `-*`.)
 
-2. `uptime-dev-byhand-api`: no managed policy. Inline policy:
+2. `uptime-dev-byhand-api`: no managed policy. Inline policy (why `ListBucket` has no prefix limit: S3 only says "no such key" to callers that may list the bucket; everyone else gets "access denied", and a missing report would become a 500 instead of a 404):
 
    ```json
    {
      "Version": "2012-10-17",
      "Statement": [
-       {"Effect": "Allow", "Action": "s3:ListBucket", "Resource": "arn:aws:s3:::uptime-dev-reports-ACCOUNT",
-        "Condition": {"StringLike": {"s3:prefix": "reports/*"}}},
+       {"Effect": "Allow", "Action": "s3:ListBucket", "Resource": "arn:aws:s3:::uptime-dev-reports-ACCOUNT"},
        {"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::uptime-dev-reports-ACCOUNT/reports/*"}
      ]
    }

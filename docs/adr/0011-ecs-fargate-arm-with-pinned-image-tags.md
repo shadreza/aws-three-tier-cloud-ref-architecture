@@ -32,7 +32,7 @@ How a deploy chooses the image:
 ## Decision
 
 - ECS on Fargate, ARM64. API: 0.25 vCPU / 0.5 GB, 1 task in dev; 0.5 vCPU / 1 GB, 2 to 4 tasks with CPU autoscaling in prod.
-- One ECR repository per environment (`uptime-<env>/backend`), immutable tags, scan on push, keep the newest 20 images. It gets its own stack, `registry`, applied between `data` and `compute` (this adds one layer to the list in ADR 0007), because the image must be pushed before any task can start.
+- One ECR repository per environment (`uptime-<env>/backend`), immutable tags, scan on push, keep the newest 50 images (a rollback can go back up to 50 deploys). It gets its own stack, `registry`, applied between `data` and `compute` (this adds one layer to the list in ADR 0007), because the image must be pushed before any task can start.
 - The image tag is the git commit (`git rev-parse --short=12 HEAD`). The compute stack reads it from SSM.
 - The load balancer is internal (ADR 0005); tasks run in private subnets with no public IP.
 - Deploys are rolling: new tasks start before old ones stop, and the deployment circuit breaker rolls back by itself if new tasks do not become healthy.
