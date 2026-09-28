@@ -18,10 +18,11 @@ Each stack reads the outputs of the ones above it, so apply them top to bottom a
 | Stack | Step | What it holds |
 |---|---|---|
 | `network` | 02 | VPC, subnets, internet gateway, NAT gateways, route tables, S3 endpoint |
-| `security` | 02 | security groups for the load balancer, API tasks, job tasks and database |
+| `security` | 02 | security groups for the load balancer, API tasks, job tasks and database; the optional debug host (03) |
 | `data` | 03 | RDS MySQL, its password in Secrets Manager, the reports bucket |
-| `compute` | 04 | ECR, ECS cluster, task definitions, the API service, the load balancer, IAM roles |
-| `edge` | 05 | CloudFront, the web bucket, WAF, certificates |
+| `registry` | 04 | the ECR repository (before compute, because the image must exist first) |
+| `compute` | 04 | ECS cluster, task definitions, the API service, the internal load balancer, IAM roles, log groups |
+| `edge` | 05 | CloudFront with a VPC origin, the web bucket, WAF (in us-east-1), optional domain and certificate |
 | `jobs` | 06 | EventBridge Scheduler schedules for check and rollup |
 | `observability` | 07 | alarms, SNS topic, dashboard, log metric filters |
 | `cicd` | 08 | GitHub OIDC provider and deploy roles |
