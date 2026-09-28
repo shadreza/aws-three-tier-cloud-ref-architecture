@@ -15,7 +15,9 @@ app/backend/     Go 1.25, GORM, MySQL. One binary, many commands (api, migrate, 
 app/web/         React 19 + TypeScript + Vite. All API calls go through /api (src/api.ts)
 compose.yaml     mysql, migrate (one-off), api, scheduler, web
 Makefile         the only entry point for everyday commands
+terraform/       bootstrap/, modules/, stacks/<layer>/, envs/<env>/ (ADR 0007)
 docs/steps/      the learning path, one file per step
+docs/costs.md    Tokyo prices, per service, per environment, per step
 docs/app/        how the app works
 docs/adr/        Architecture Decision Records
 docs/diagrams/   styled SVG diagrams + build.py
@@ -34,6 +36,7 @@ make test        # go vet + go test, frontend typecheck + build
 make fmt         # gofmt
 make logs s=api  # follow one service
 make reset       # delete all local data
+make tf-validate # terraform fmt check + validate for every stack, no AWS needed
 ```
 
 Run `make test` before every commit. After Go changes, `make restart` rebuilds the containers.
@@ -54,7 +57,10 @@ Run `make test` before every commit. After Go changes, `make restart` rebuilds t
 
 - Each AWS step is done **by hand in the console first**, then written as Terraform. Docs follow that order: understand, build by hand, test and break, Terraform.
 - Do not run AWS CLI commands (not even read-only ones). Print the exact command for the human to run and ask for the output.
-- Terraform lives under `terraform/` once step 02 starts, split into layered stacks (network, security, data, compute, edge, observability, cicd).
+- Region is Tokyo, `ap-northeast-1` (ADR 0004). Every cost in the docs is a Tokyo price; update `docs/costs.md` when a step adds something billable.
+- Terraform: modules in `terraform/modules` (no provider/backend), one root per layer in `terraform/stacks` (network, security, data, compute, edge, jobs, observability, cicd), values per environment in `terraform/envs/<env>`. Environments differ only by values, never by code. Stacks read lower stacks with `terraform_remote_state`.
+- `make tf-validate` is safe to run (no credentials). `make tf-plan/apply/destroy/output/bootstrap` touch AWS: the human runs them.
+- Secrets never go in `.tfvars` or Terraform state (use write-only arguments or AWS-managed secrets).
 
 ## Git
 
@@ -63,10 +69,10 @@ Run `make test` before every commit. After Go changes, `make restart` rebuilds t
 - Branches:
   - a whole step: `step-NN/<what-it-builds>`, e.g. `step-02/aws-network`
   - anything else: `<type>/<short-description>`, e.g. `fix/rollup-midnight-results`
-- After a step is merged, tag it with the branch name using `-`: `step-02-aws-network`.
+- After a step is merged, tag it with the branch name using `-` (`step-02-aws-network`) and create `checkpoint/step-02` at the merge. Tags never move. A checkpoint branch only moves forward with fixes for that step (cherry-picked), never with later steps' work.
 - Commits follow Conventional Commits: `<type>(<scope>): <subject>`
   - types: `feat fix docs infra ci refactor test chore`
-  - scopes: `api jobs db web docker make docs`, and AWS parts like `network ecs rds edge`
+  - scopes: `api jobs db web docker make docs terraform`, and AWS parts like `network security rds ecs edge observability cicd`
   - subject: imperative, lowercase, no full stop, 50 characters or less; body explains why
 - Full rules in [CONTRIBUTING.md](CONTRIBUTING.md).
 
