@@ -29,7 +29,7 @@ For the build:
 ## Decision
 
 - **`ci.yml`** on every pull request and push: `make test-backend`, `make test-web`, `make tf-validate`, and an ARM image build. No AWS access at all.
-- **`deploy.yml`** on push to `master` (when app or compute code changed): one `build` job on an ARM runner saves the image (`docker save`) and the web build as artifacts. Then `deploy-environment.yml` runs for dev, then staging (if `DEPLOY_STAGING` is `true`), then prod (if `DEPLOY_PROD` is `true`). Each one: push the same image to that environment's ECR, `make image-use`, `make tf-plan` and `make tf-apply` for the compute stack, wait for the service to be stable, `make web-upload`.
+- **`deploy.yml`** on push to `master` (when app or compute code changed): one `build` job on an ARM runner saves the image (`docker save`) and the web build as artifacts. The whole workflow only runs when the repository variable `DEPLOY_DEV` is `true`. Then `deploy-environment.yml` runs for dev, then staging (if `DEPLOY_STAGING` is `true`), then prod (if `DEPLOY_PROD` is `true`). Each one: push the same image to that environment's ECR, `make image-use`, `make tf-plan` and `make tf-apply` for the compute stack, wait for the service to be stable, `make web-upload`.
 - Each environment is a **GitHub environment** with a variable `AWS_DEPLOY_ROLE_ARN`. The role (`terraform/stacks/cicd`) trusts only `repo:<owner>/<repo>:environment:<env>`. The `prod` environment has required reviewers, so the prod job waits for a person.
 - The GitHub OIDC provider is created by `terraform/bootstrap`, once per account.
 - CI uses the same `make` targets as people. There is one way to deploy.

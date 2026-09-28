@@ -2,7 +2,9 @@
 # to dev, then staging, then prod. Each environment is a GitHub environment
 # with its own AWS role; prod waits for a person to approve it.
 #
-# Setup (once): docs/steps/08-ci-cd.md, section 4.
+# Setup (once): docs/steps/08-ci-cd.md, section 4. Until the repository
+# variable DEPLOY_DEV is "true", this workflow does nothing, so merging it
+# before AWS is set up is harmless.
 name: deploy
 
 on:
@@ -22,6 +24,7 @@ permissions:
 
 jobs:
   build:
+    if: vars.DEPLOY_DEV == 'true'
     runs-on: ubuntu-24.04-arm
     outputs:
       tag: ${{ steps.tag.outputs.tag }}

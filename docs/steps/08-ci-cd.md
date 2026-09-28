@@ -40,8 +40,8 @@ In this step GitHub Actions takes over. Every pull request is tested. Every merg
 flowchart LR
     pr["pull request"] --> ci["ci.yml<br/>go test, web build,<br/>terraform validate,<br/>ARM image build"]
     push["push to master"] --> ci
-    push --> build["deploy.yml: build<br/>image + web, once"]
-    build --> dev["deploy dev<br/>(automatic)"]
+    push --> build["deploy.yml: build<br/>image + web, once<br/>(if DEPLOY_DEV)"]
+    build --> dev["deploy dev<br/>(if DEPLOY_DEV)"]
     dev --> stg["deploy staging<br/>(if DEPLOY_STAGING)"]
     stg --> prod["deploy prod<br/>(if DEPLOY_PROD,<br/>after approval)"]
     classDef compute stroke:#ED7100,stroke-width:2px
@@ -138,11 +138,12 @@ REPO=shadreza/aws-three-tier-cloud-ref-architecture
 gh api -X PUT repos/$REPO/environments/dev
 gh variable set AWS_DEPLOY_ROLE_ARN --repo $REPO --env dev \
   --body "arn:aws:iam::ACCOUNT:role/uptime-dev-github-deploy"
+gh variable set DEPLOY_DEV --repo $REPO --body true
 gh variable set DEPLOY_STAGING --repo $REPO --body false
 gh variable set DEPLOY_PROD --repo $REPO --body false
 ```
 
-The first command prints the environment as JSON; the others print `✓ Created variable ...`. These are **variables**, not secrets: a role ARN is not secret, it is useless without a valid GitHub token.
+The first command prints the environment as JSON; the others print `✓ Created variable ...`. These are **variables**, not secrets: a role ARN is not secret, it is useless without a valid GitHub token. `DEPLOY_DEV` switches the whole deploy workflow on; until it is `true`, merges to `master` only run `ci`.
 
 For prod later: create the `prod` environment, add **Required reviewers** (yourself or the team) in its settings, set its own `AWS_DEPLOY_ROLE_ARN` from `make tf-output env=prod stack=cicd`, and set `DEPLOY_PROD` to `true`.
 
