@@ -10,7 +10,7 @@ ME         := $(shell id -u):$(shell id -g)
 
 .DEFAULT_GOAL := help
 .PHONY: help up down restart ps logs seed check rollup migrate db test test-backend test-web fmt reset \
-	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate image-push image-use web-build web-deploy web-upload
+	tf-bootstrap tf-plan tf-apply tf-destroy tf-output tf-fmt tf-validate tf-up tf-down image-push image-use web-build web-deploy web-upload
 
 help: ## Show this list
 	@echo "Usage: make <command>"
@@ -126,6 +126,27 @@ tf-destroy: tf-init ## Delete everything in one stack: make tf-destroy env=dev s
 
 tf-output: tf-init ## Show a stack's outputs: make tf-output env=dev stack=network [name=vpc_id]
 	@$(TF_ENV_RUN) output $(if $(name),-raw $(name))
+
+# Plan and apply several stacks in order, asking before each apply.
+#   make tf-up   env=staging stacks="network security data registry"
+#   make tf-down env=staging            (every stack, in reverse order)
+TF_REVERSE = $(shell echo $(TF_STACKS) | awk '{ for (i = NF; i > 0; i--) printf "%s ", $$i }')
+
+tf-up: ## Plan and apply stacks in order, asking each time: make tf-up env=staging [stacks="network security"]
+	@test -n "$(env)" || (echo "set env, for example: make tf-up env=staging" && exit 1)
+	@for s in $(or $(stacks),$(TF_STACKS)); do \
+		echo ""; echo "==== $(env) / $$s"; \
+		$(MAKE) -s tf-plan env=$(env) stack=$$s || exit 1; \
+		printf "Apply $(env)/$$s? [y/N] "; read answer; \
+		if [ "$$answer" = "y" ]; then $(MAKE) -s tf-apply env=$(env) stack=$$s || exit 1; else echo "stopped before $$s"; exit 1; fi; \
+	done
+
+tf-down: ## Destroy stacks in reverse order, asking each time: make tf-down env=staging [stacks="..."]
+	@test -n "$(env)" || (echo "set env, for example: make tf-down env=staging" && exit 1)
+	@for s in $(or $(stacks),$(TF_REVERSE)); do \
+		echo ""; echo "==== $(env) / $$s"; \
+		$(MAKE) -s tf-destroy env=$(env) stack=$$s || exit 1; \
+	done
 
 tf-fmt: ## Format the Terraform code
 	$(TF_RUN) fmt -recursive
