@@ -81,7 +81,7 @@ flowchart LR
 
 Why MySQL 8.4 and not 8.0: RDS standard support for 8.0 ended in July 2026, and staying on it now costs an extra extended-support fee. Why not Aurora: the smallest Aurora instance costs about four times a `db.t4g.micro`, and Aurora Serverless v2 cannot pause because our check job writes every minute. [ADR 0008](../adr/0008-rds-mysql-single-az-dev-multi-az-prod.md) has the full list.
 
-Is Multi-AZ worth $56 a month? In prod, yes: a zone failure or a maintenance reboot takes one or two minutes instead of the time it takes someone to notice and restore a backup. In dev, no.
+Is Multi-AZ worth it? On a `db.t4g.small` it adds about $38 a month (a second instance and a second copy of the storage). In prod, yes: a zone failure or a maintenance reboot takes one or two minutes instead of the time it takes someone to notice and restore a backup. In dev, no.
 
 ### The password
 

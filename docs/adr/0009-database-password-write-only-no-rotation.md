@@ -28,7 +28,7 @@ The admin token (`ADMIN_TOKEN`) is made the same way, in the secret `uptime-<env
 
 ## Consequences
 
-- The state file shows `password_wo = (write-only attribute)` and nothing else. Step 03 has you check this.
+- The plan shows `password_wo = (write-only attribute)`, and the state file stores `"password_wo": null`. Step 03 has you check this.
 - There is no automatic rotation. To rotate: change `db_password_version`, apply the `data` stack, then force a new deployment of the API service (step 04). For a few seconds, running tasks cannot open new connections.
 - Anyone who can read the secret can read the password. Access to `secretsmanager:GetSecretValue` on it is limited to the ECS execution role and admins.
 
