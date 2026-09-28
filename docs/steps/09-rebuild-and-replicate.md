@@ -80,7 +80,7 @@ make image-push env=staging
 make image-use env=staging tag=<the tag it printed>
 ```
 
-(Or let CI do it: create the GitHub environment `staging` and its `AWS_DEPLOY_ROLE_ARN` after 3.4, and set `DEPLOY_STAGING` to `true`, as in step 08.)
+The first image of a new environment is always pushed by hand: the compute stack cannot even plan until `/uptime-staging/image-tag` exists, and CI's deploy role for staging is only made by the `cicd` stack in 3.4. From then on CI can take over: create the GitHub environment `staging` with its `AWS_DEPLOY_ROLE_ARN`, and set `DEPLOY_STAGING` to `true` (step 08).
 
 ### 3.4 The rest
 
@@ -130,7 +130,7 @@ A few things exist that no stack owns. Check and delete them by hand:
 |---|---|---|
 | security group `CloudFront-VPCOrigins-Service-SG` | CloudFront created it for the VPC origin | if the `network` destroy fails with `DependencyViolation`, delete this group, then run it again |
 | SSM parameter `/uptime-dev/image-tag` | you (or CI) wrote it with `image-use` | keep it (free), or `aws ssm delete-parameter --name /uptime-dev/image-tag` |
-| the debug host's stopped tasks, old task definition revisions | ECS keeps them for history | nothing; they cost nothing |
+| stopped ECS tasks and inactive task definition revisions | ECS keeps them for a while as history | nothing; they cost nothing |
 
 ### 4.3 Prove nothing is left
 
@@ -224,7 +224,7 @@ Prod costs about $253 a month (costs.md). Most of the difference from dev is the
 <details>
 <summary>Answers</summary>
 
-1. No code: copy `envs/dev` to `envs/qa`, change the values (a new CIDR such as `10.50.0.0/16`, the account ID), and add `qa` to the `environment` validation in `stacks/*/common.tf`. Then apply the stacks in order.
+1. No code: copy `envs/dev` to `envs/qa`, change the values (a new CIDR such as `10.50.0.0/16`, the account ID), and apply the stacks in order. The only rule for the name is that it is short and lowercase.
 2. Every other stack puts things inside the VPC (security groups, RDS, tasks, the load balancer, the VPC origin). AWS refuses to delete a VPC that still has anything in it.
 3. The NAT gateway's Elastic IP. All checks leave through it, and a rebuild makes a new one. Their allowlist has the old IP.
 4. So a destroy cannot silently delete a year of reports. In dev, fast teardown matters more than old CSV files.
