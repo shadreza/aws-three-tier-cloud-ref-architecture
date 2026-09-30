@@ -43,3 +43,14 @@ python3 docs/diagrams/build.py
 | `step-07-observability.svg` | metrics, log filters, alarms, SNS, dashboard | step 07 |
 | `step-08-cicd.svg` | GitHub workflows, OIDC, the deploy role | step 08 |
 | `step-09-environments.svg` | bootstrap and three environments side by side | step 09 |
+
+## Storybook frames
+
+The [storybook](../storybook/README.md) draws anything that changes over time as a set of frames. Every box stays in the same place in every frame; what's new or changed has a gold ring, what comes later is faded, and what failed is red. They're built by the `story_*` functions in `build.py`.
+
+| Files | Shows | Used in |
+|---|---|---|
+| `story-05-vpc-1.svg` to `-5` | the VPC built up: subnets, internet gateway, NAT gateway, S3 endpoint, moving in | episode 5 |
+| `story-07-failover-1.svg` to `-3` | RDS Multi-AZ failover | episode 7 |
+| `story-08-deploy-1.svg` to `-4` | a rolling deploy on ECS | episode 8 |
+| `story-14-zone-1.svg` to `-3` | prod surviving the loss of zone 1a | episode 14 |

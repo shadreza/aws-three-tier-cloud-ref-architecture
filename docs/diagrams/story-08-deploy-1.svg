@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" width="780" height="320" role="img" aria-label="Episode 8, Frame 1 · Before: Revision 6 serves every request.">
+<style>
+  text { font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .n { stroke-width:1.2; }
+  .n.dash { stroke-dasharray:5 4; stroke-width:1.3; }
+  .ab { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:8.5px; font-weight:600; fill:#fff; }
+  .t { font-size:12px; font-weight:600; }
+  .s { font-size:10.5px; }
+  .gt { font-size:12px; font-weight:600; }
+  .grp { stroke-width:1; }
+  .region { fill:none; stroke:#00A4A6; stroke-width:1.4; stroke-dasharray:7 5; }
+  .vpc { fill:none; stroke:#8C4FFF; stroke-width:1.4; }
+  .pub { stroke:#7AA116; stroke-width:1; }
+  .priv { stroke:#00A4A6; stroke-width:1; }
+  .iso { stroke:#147EBA; stroke-width:1; }
+  .gl { font-size:12px; font-weight:600; }
+  text.reg { fill:#00A4A6; } text.vpcl { fill:#8C4FFF; }
+  .sl { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; letter-spacing:.06em; }
+  text.publ { fill:#7AA116; } text.privl { fill:#00A4A6; } text.isol { fill:#147EBA; }
+  .ar { fill:none; stroke-width:1.4; }
+  .ar.thin { stroke-dasharray:3 3; }
+  .al { font-size:10.5px; paint-order:stroke; stroke-width:3px; stroke-linejoin:round; }
+  .lg { font-size:11px; }
+  svg { color:#5A6877; }
+  .bg { fill:#F3F6F8; }
+  .n { fill:#FFFFFF; stroke:#C6D0D9; }
+  .n.dash { stroke:#15202B; }
+  .t, .gt { fill:#15202B; }
+  .s, .sl, .al, .lg { fill:#5A6877; }
+  .al { stroke:#FFFFFF; }
+  .grp { fill:#F7F9FB; stroke:#C6D0D9; }
+  .pub { fill:rgba(122,161,22,.07); }
+  .priv { fill:rgba(0,164,166,.06); }
+  .iso { fill:rgba(20,126,186,.07); }
+  .ar { stroke:#5A6877; }
+  .mk { fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  svg { color:#95A3B1; }
+  .bg { fill:#0E141A; }
+  .n { fill:#161F28; stroke:#344352; }
+  .n.dash { stroke:#E2E8EE; }
+  .t, .gt { fill:#E2E8EE; }
+  .s, .sl, .al, .lg { fill:#95A3B1; }
+  .al { stroke:#161F28; }
+  .grp { fill:#121A22; stroke:#344352; }
+  .pub { fill:rgba(122,161,22,.10); }
+  .priv { fill:rgba(0,164,166,.09); }
+  .iso { fill:rgba(20,126,186,.12); }
+  .ar { stroke:#95A3B1; }
+  .mk { fill:#95A3B1; }
+  }
+</style>
+<defs>
+  <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="780" height="320" rx="10"/>
+<style>
+  .ghost { opacity:.28; }
+  .ring { fill:none; stroke:#D69E2E; stroke-width:2.2; }
+  .down { fill:rgba(221,52,76,.07); stroke:#DD344C; stroke-width:1.4; stroke-dasharray:6 4; }
+  .dn { font-size:11px; font-weight:700; fill:#DD344C; }
+  .ft { font-size:14px; font-weight:700; fill:#15202B; }
+  .fs { font-size:11.5px; fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  .ft { fill:#E2E8EE; } .fs { fill:#95A3B1; }
+  .ring { stroke:#F6C453; }
+  }
+</style>
+<text class="ft" x="20" y="30" text-anchor="start">Frame 1 · Before</text>
+<text class="fs" x="20" y="49" text-anchor="start">Revision 6 serves every request.</text>
+<rect class="n" x="40" y="160" width="180" height="44" rx="6"/>
+<rect x="48" y="168" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="62" y="185.5" text-anchor="middle">ALB</text>
+<text class="t" x="84" y="179">Load balancer</text>
+<text class="s" x="84" y="194">internal · :80</text>
+<rect class="grp" x="380" y="80" width="370" height="200" rx="8"/>
+<text class="gt" x="392" y="99" text-anchor="start">ECS service uptime-dev-api</text>
+<rect class="n" x="430" y="112" width="280" height="44" rx="6"/>
+<rect x="438" y="120" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="452" y="137.5" text-anchor="middle">ECS</text>
+<text class="t" x="474" y="131">api task · revision 6</text>
+<text class="s" x="474" y="146">healthy · serving</text>
+<g class="ghost">
+<rect class="n" x="430" y="204" width="280" height="44" rx="6"/>
+<rect x="438" y="212" width="28" height="28" rx="4" fill="#ED7100"/>
+<text class="ab" x="452" y="229.5" text-anchor="middle">ECS</text>
+<text class="t" x="474" y="223">api task · revision 7</text>
+<text class="s" x="474" y="238">not started yet</text>
+</g>
+<path class="ar" d="M220,176 H320 V134 H430" marker-end="url(#h)"/>
+<text class="al" x="325" y="126" text-anchor="start">requests</text>
+<rect class="ring" x="20" y="294" width="22" height="14" rx="4"/>
+<text class="lg" x="48" y="305">new or changed in this frame</text>
+<rect class="n ghost" x="247.6" y="294" width="22" height="14" rx="3"/>
+<text class="lg" x="275.6" y="305">comes later, or gone</text>
+<path class="ar" d="M425.6,301 h22"/>
+<text class="lg" x="453.6" y="305">traffic or route</text>
+</svg>
