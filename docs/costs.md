@@ -94,6 +94,18 @@ A long-running worker task with a timer inside would cost about the same ($8.99)
 
 Without the free S3 gateway endpoint, each of those 43,800 starts would pull the image layers through the NAT gateway: about 430 GB, or $27 a month extra.
 
+### Pages coming back through the NAT gateway
+
+The totals above assume a handful of test monitors. With real monitors, one more cost grows with their number: the check job reads up to 1 MB of every page (`app/backend/internal/checker/checker.go`), and every byte comes back through the NAT gateway at $0.062 per GB.
+
+```
+200 monitors x 1,440 checks a day x 30.4 days = about 8.75 million checks a month
+average page 20 KB:  about 175 GB  = about $11 a month
+average page 100 KB: about 875 GB  = about $54 a month
+```
+
+So a production environment watching 200 real sites costs about $265 to $305 a month, not $253. Measure the real number with the NAT gateway's `BytesInFromDestination` metric in CloudWatch. If it's high, the cheapest fix is in the code: read less of each page. The storybook works through this in [episode 2](storybook/02-what-good-means.md) and [episode 12](storybook/12-seeing-the-system.md).
+
 ## Per step: what it costs while you work
 
 Each step adds pieces. This is the running total per hour while everything from that step and the ones before it exists (dev sizes).
