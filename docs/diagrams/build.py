@@ -789,6 +789,326 @@ def step09_environments():
     s.save("step-09-environments.svg")
 
 
+# ---------------------------------------------------------------------------
+# Storybook frames (docs/storybook). Each set keeps every box in the same place
+# in every frame, so the reader's eye only has to find what changed. Things
+# that come later are faded, what is new has a gold ring, what failed is red.
+
+FRAME_STYLE = """<style>
+  .ghost { opacity:.28; }
+  .ring { fill:none; stroke:#D69E2E; stroke-width:2.2; }
+  .down { fill:rgba(221,52,76,.07); stroke:#DD344C; stroke-width:1.4; stroke-dasharray:6 4; }
+  .dn { font-size:11px; font-weight:700; fill:#DD344C; }
+  .ft { font-size:14px; font-weight:700; fill:#15202B; }
+  .fs { font-size:11.5px; fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  .ft { fill:#E2E8EE; } .fs { fill:#95A3B1; }
+  .ring { stroke:#F6C453; }
+  }
+</style>"""
+
+
+class Frame(Svg):
+    def __init__(self, w, h, label, title, sub):
+        super().__init__(w, h, label)
+        self.add(FRAME_STYLE)
+        self.text("ft", 20, 30, title)
+        self.text("fs", 20, 49, sub)
+
+    def begin(self, cls):
+        self.add(f'<g class="{cls}">')
+
+    def end(self):
+        self.add("</g>")
+
+    def ring(self, x, y, w=170, h=44):
+        self.add(f'<rect class="ring" x="{x-4}" y="{y-4}" width="{w+8}" height="{h+8}" rx="9"/>')
+
+    def down_zone(self, x, y, w, h, label):
+        self.add(f'<rect class="down" x="{x}" y="{y}" width="{w}" height="{h}" rx="8"/>')
+        self.text("dn", x + w - 12, y + h - 10, label, anchor="end")
+
+    def frame_legend(self, y, down=False):
+        x = 20
+        items = [("ring", "new or changed in this frame"), ("ghost", "comes later, or gone"),
+                 ("line", "traffic or route")]
+        if down:
+            items.append(("down", "failed"))
+        for kind, label in items:
+            if kind == "ring":
+                self.add(f'<rect class="ring" x="{x}" y="{y-11}" width="22" height="14" rx="4"/>')
+            elif kind == "ghost":
+                self.add(f'<rect class="n ghost" x="{x}" y="{y-11}" width="22" height="14" rx="3"/>')
+            elif kind == "down":
+                self.add(f'<rect class="down" x="{x}" y="{y-11}" width="22" height="14" rx="3"/>')
+            else:
+                self.add(f'<path class="ar" d="M{x},{y-4} h22"/>')
+            x += 28
+            self.add(f'<text class="lg" x="{x}" y="{y}">{label}</text>')
+            x += 6.2 * len(label) + 26
+
+
+def story_vpc_frames():
+    """Episode 5: the VPC built up one piece at a time."""
+    frames = [
+        ("Frame 1 · A VPC and six subnets",
+         "All six are the same so far. Their only route is 10.20.0.0/16 local: nothing gets in or out."),
+        ("Frame 2 · The front door",
+         "An internet gateway, and one route in the public route table: 0.0.0.0/0 to the gateway."),
+        ("Frame 3 · The exit-only door",
+         "A NAT gateway in public-1a. Both private route tables send 0.0.0.0/0 to it."),
+        ("Frame 4 · A room with no door, and a private tunnel",
+         "The isolated subnets get no route out. The private subnets get a free S3 gateway endpoint."),
+        ("Frame 5 · Moving in",
+         "The public subnets hold only the NAT gateway. Everything we run is private or isolated."),
+    ]
+    names = {"pub": "PUBLIC", "priv": "PRIVATE", "iso": "ISOLATED"}
+    for n, (title, sub) in enumerate(frames, start=1):
+        s = Frame(980, 600, f"Episode 5, {title}: {sub}", title, sub)
+        s.card(405, 62, "client", "WWW", "Internet", "users, websites")
+        s.rect("vpc", 30, 150, 778, 395)
+        s.text("gl vpcl", 44, 170, "VPC · 10.20.0.0/16")
+
+        bands = {}
+        for z, (zx, az) in enumerate([(44, "1a"), (424, "1c")]):
+            s.rect("grp", zx, 182, 370, 350)
+            s.text("gt", zx + 12, 200, f"Availability Zone {az}")
+            bx = zx + 10
+            for kind, by, bh, cidr in [("pub", 210, 80, z), ("priv", 300, 120, 10 + z), ("iso", 430, 92, 20 + z)]:
+                s.rect(kind, bx, by, 350, bh, rx=6)
+                s.text(f"sl {kind}l", bx + 10, by + 16, f"{names[kind]}-{az} · 10.20.{cidr}.0/24")
+                bands[(kind, az)] = (bx, by, bh)
+
+        def note(kind, az, text):
+            bx, by, bh = bands[(kind, az)]
+            if kind in ("pub", "iso"):
+                s.text("s", bx + 340, by + 16, text, anchor="end")
+            else:
+                s.text("s", bx + 10, by + bh - 10, text)
+
+        def ring_band(kind):
+            for az in ("1a", "1c"):
+                bx, by, bh = bands[(kind, az)]
+                s.ring(bx, by, 350, bh)
+
+        for az in ("1a", "1c"):
+            note("pub", az, "local only" if n == 1 else "0.0.0.0/0 to the gateway")
+            note("priv", az, {1: "route: local only", 2: "route: local only",
+                              3: "0.0.0.0/0 to the NAT gateway"}.get(n, "0.0.0.0/0 to NAT · S3 to the endpoint"))
+            note("iso", az, "local only" if n < 4 else "no route out, ever")
+        if n == 1:
+            for kind in ("pub", "priv", "iso"):
+                ring_band(kind)
+
+        # internet gateway
+        if n < 2:
+            s.begin("ghost")
+        s.card(405, 128, "network", "IGW", "Internet gateway", "free, both ways")
+        if n < 2:
+            s.end()
+        else:
+            s.arrow("M490,106 V128", both=True)
+            s.arrow("M530,172 V190 H609 V210", both=True)
+            if n == 2:
+                s.arrow("M450,172 V190 H229 V210", both=True)
+                s.ring(405, 128)
+                ring_band("pub")
+
+        # NAT gateway
+        if n < 3:
+            s.begin("ghost")
+        s.card(226, 238, "network", "NAT", "NAT gateway", "Elastic IP · exit only")
+        if n < 3:
+            s.end()
+        else:
+            s.arrow("M396,252 H419 V190 H450 V172")
+            s.arrow("M130,300 V260 H224")
+            s.text("al", 136, 284, "0.0.0.0/0")
+            s.arrow("M434,344 H408 V268 H398")
+            if n == 3:
+                s.ring(226, 238)
+
+        # S3 endpoint and S3
+        if n < 4:
+            s.begin("ghost")
+        s.card(614, 330, "network", "VPCE", "S3 endpoint", "gateway · free", w=160)
+        s.card(822, 330, "storage", "S3", "Amazon S3", "in Tokyo", w=145)
+        if n < 4:
+            s.end()
+        else:
+            s.arrow("M774,352 H822")
+            s.arrow("M404,423 H694 V376", thin=True)
+            if n == 4:
+                s.ring(614, 330, 160)
+                ring_band("iso")
+
+        if n == 5:
+            for x, y, cat, ab, t, sb, w in [
+                (64, 330, "network", "ALB", "Load balancer", "internal", 150),
+                (222, 330, "compute", "ECS", "Tasks", "api, check, rollup", 160),
+                (444, 330, "compute", "ECS", "Tasks", "api, check, rollup", 160),
+                (64, 456, "database", "RDS", "RDS primary", "no public address", 180),
+                (444, 456, "database", "RDS", "RDS standby", "prod only", 180),
+            ]:
+                s.card(x, y, cat, ab, t, sb, w=w)
+                s.ring(x, y, w)
+
+        s.frame_legend(580)
+        s.save(f"story-05-vpc-{n}.svg")
+
+
+def story_deploy_frames():
+    """Episode 8: a rolling deploy with no downtime."""
+    frames = [
+        ("Frame 1 · Before", "Revision 6 serves every request.", "healthy · serving", "not started yet"),
+        ("Frame 2 · Start the new one next to it",
+         "ECS starts revision 7. The load balancer only health-checks it; users see nothing.",
+         "healthy · serving", "starting: migrate, then api"),
+        ("Frame 3 · Both serve",
+         "Revision 7 passed two health checks in a row, so it gets requests too.",
+         "healthy · serving", "healthy · serving"),
+        ("Frame 4 · Drain the old one",
+         "No new requests go to revision 6. It gets 30 seconds to finish, then stops.",
+         "draining · 30 s, then stops", "healthy · serving"),
+    ]
+    for n, (title, sub, old_sub, new_sub) in enumerate(frames, start=1):
+        s = Frame(780, 320, f"Episode 8, {title}: {sub}", title, sub)
+        s.card(40, 160, "network", "ALB", "Load balancer", "internal · :80", w=180)
+        s.rect("grp", 380, 80, 370, 200)
+        s.text("gt", 392, 99, "ECS service uptime-dev-api")
+
+        if n == 4:
+            s.begin("ghost")
+        s.card(430, 112, "compute", "ECS", "api task · revision 6", old_sub, w=280)
+        if n == 4:
+            s.end()
+            s.ring(430, 112, 280)
+
+        if n == 1:
+            s.begin("ghost")
+        s.card(430, 204, "compute", "ECS", "api task · revision 7", new_sub, w=280, dash=(n == 2))
+        if n == 1:
+            s.end()
+        if n in (2, 3):
+            s.ring(430, 204, 280)
+
+        # load balancer to revision 6
+        s.arrow("M220,176 H320 V134 H430", thin=(n == 4))
+        s.text("al", 325, 126, "no new requests" if n == 4 else "requests")
+        # load balancer to revision 7
+        if n >= 2:
+            s.arrow("M220,190 H320 V226 H430", thin=(n == 2))
+            s.text("al", 325, 246, "health checks only" if n == 2 else "requests")
+
+        s.frame_legend(305)
+        s.save(f"story-08-deploy-{n}.svg")
+
+
+def story_failover_frames():
+    """Episode 7: RDS Multi-AZ failover."""
+    frames = [
+        ("Frame 1 · Normal",
+         "The app connects to the endpoint name. Every write is copied to the standby before it's confirmed."),
+        ("Frame 2 · Zone 1a fails",
+         "The primary is gone, and every open connection breaks."),
+        ("Frame 3 · One to two minutes later",
+         "RDS promotes the standby and points the same name at it. The app reconnects and carries on."),
+    ]
+    for n, (title, sub) in enumerate(frames, start=1):
+        s = Frame(780, 380, f"Episode 7, {title}: {sub}", title, sub)
+        s.card(295, 72, "compute", "ECS", "api and job tasks", "connect by name", w=190)
+        s.card(260, 150, "network", "DNS", "endpoint", "uptime-prod.xxxx.rds.amazonaws.com", w=260)
+        s.arrow("M390,116 V150")
+        s.rect("grp", 40, 225, 330, 120)
+        s.text("gt", 52, 244, "Availability Zone 1a")
+        s.rect("grp", 410, 225, 330, 120)
+        s.text("gt", 422, 244, "Availability Zone 1c")
+
+        if n == 3:
+            s.begin("ghost")
+        s.card(110, 270, "database", "RDS", "RDS primary", "unreachable" if n == 2 else "zone 1a", w=190)
+        if n == 3:
+            s.end()
+        if n == 2:
+            s.down_zone(40, 225, 330, 120, "zone 1a down")
+
+        if n == 3:
+            s.card(480, 270, "database", "RDS", "RDS primary", "promoted · zone 1c", w=190)
+            s.ring(480, 270, 190)
+        else:
+            s.card(480, 270, "database", "RDS", "RDS standby", "zone 1c", w=190)
+
+        if n == 1:
+            s.arrow("M330,194 V212 H205 V270")
+            s.arrow("M300,292 H480", thin=True)
+            s.text("al", 390, 284, "every write copied", anchor="middle")
+        elif n == 2:
+            s.arrow("M330,194 V212 H205 V270", thin=True)
+            s.text("al", 214, 206, "connections break")
+        else:
+            s.arrow("M450,194 V212 H575 V270")
+            s.text("al", 584, 206, "same name, new address")
+
+        s.frame_legend(366, down=(n == 2))
+        s.save(f"story-07-failover-{n}.svg")
+
+
+def story_zone_frames():
+    """Episode 14: prod survives losing zone 1a."""
+    frames = [
+        ("Frame 1 · Normal",
+         "An api task and a NAT gateway in each zone. The database primary in 1a copies every write to 1c."),
+        ("Frame 2 · Zone 1a goes dark",
+         "The api task, the NAT gateway and the database primary in 1a are gone. Open connections break."),
+        ("Frame 3 · About two minutes later",
+         "Requests go to 1c only, RDS has promoted the standby, ECS starts a second task, checks leave through NAT 1c."),
+    ]
+    for n, (title, sub) in enumerate(frames, start=1):
+        s = Frame(980, 470, f"Episode 14, {title}: {sub}", title, sub)
+        s.card(400, 66, "network", "ALB", "Load balancer", "spans both zones", w=180)
+        s.rect("grp", 40, 140, 440, 280)
+        s.text("gt", 468, 159, "Availability Zone 1a", anchor="end")
+        s.rect("grp", 500, 140, 440, 280)
+        s.text("gt", 928, 159, "Availability Zone 1c", anchor="end")
+
+        if n == 3:
+            s.begin("ghost")
+        s.card(70, 175, "compute", "ECS", "api task", "zone 1a")
+        s.card(70, 255, "network", "NAT", "NAT gateway", "zone 1a")
+        s.card(70, 340, "database", "RDS", "RDS primary", "zone 1a", w=190)
+        if n == 3:
+            s.end()
+        if n == 2:
+            s.down_zone(40, 140, 440, 280, "zone 1a down")
+
+        s.card(530, 175, "compute", "ECS", "api task", "zone 1c")
+        s.card(530, 255, "network", "NAT", "NAT gateway", "zone 1c")
+        s.card(730, 255, "compute", "ECS", "check task", "every minute", w=180, dash=True)
+        if n == 3:
+            s.card(530, 340, "database", "RDS", "RDS primary", "promoted", w=190)
+            s.ring(530, 340, 190)
+            s.card(730, 175, "compute", "ECS", "api task", "replacement, starting", w=180, dash=True)
+            s.ring(730, 175, 180)
+        else:
+            s.card(530, 340, "database", "RDS", "RDS standby", "zone 1c", w=190)
+
+        # load balancer to the tasks
+        if n < 3:
+            s.arrow("M455,110 V128 H155 V175", thin=(n == 2))
+        s.arrow("M525,110 V128 H615 V175")
+        if n == 2:
+            s.text("al", 300, 122, "health checks fail", anchor="middle")
+        # check task out through its zone's NAT
+        s.arrow("M730,277 H700")
+        s.text("al", 726, 249, "checks carry on" if n == 3 else "out to websites", anchor="end")
+        if n == 1:
+            s.arrow("M260,362 H530", thin=True)
+            s.text("al", 395, 354, "every write copied", anchor="middle")
+
+        s.frame_legend(452, down=(n == 2))
+        s.save(f"story-14-zone-{n}.svg")
+
+
 local_architecture()
 aws_architecture()
 aws_network()
@@ -799,4 +1119,8 @@ step06_jobs()
 step07_observability()
 step08_cicd()
 step09_environments()
+story_vpc_frames()
+story_deploy_frames()
+story_failover_frames()
+story_zone_frames()
 print("done")

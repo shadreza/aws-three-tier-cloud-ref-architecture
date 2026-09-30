@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 600" width="980" height="600" role="img" aria-label="Episode 5, Frame 4 · A room with no door, and a private tunnel: The isolated subnets get no route out. The private subnets get a free S3 gateway endpoint.">
+<style>
+  text { font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .n { stroke-width:1.2; }
+  .n.dash { stroke-dasharray:5 4; stroke-width:1.3; }
+  .ab { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:8.5px; font-weight:600; fill:#fff; }
+  .t { font-size:12px; font-weight:600; }
+  .s { font-size:10.5px; }
+  .gt { font-size:12px; font-weight:600; }
+  .grp { stroke-width:1; }
+  .region { fill:none; stroke:#00A4A6; stroke-width:1.4; stroke-dasharray:7 5; }
+  .vpc { fill:none; stroke:#8C4FFF; stroke-width:1.4; }
+  .pub { stroke:#7AA116; stroke-width:1; }
+  .priv { stroke:#00A4A6; stroke-width:1; }
+  .iso { stroke:#147EBA; stroke-width:1; }
+  .gl { font-size:12px; font-weight:600; }
+  text.reg { fill:#00A4A6; } text.vpcl { fill:#8C4FFF; }
+  .sl { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; letter-spacing:.06em; }
+  text.publ { fill:#7AA116; } text.privl { fill:#00A4A6; } text.isol { fill:#147EBA; }
+  .ar { fill:none; stroke-width:1.4; }
+  .ar.thin { stroke-dasharray:3 3; }
+  .al { font-size:10.5px; paint-order:stroke; stroke-width:3px; stroke-linejoin:round; }
+  .lg { font-size:11px; }
+  svg { color:#5A6877; }
+  .bg { fill:#F3F6F8; }
+  .n { fill:#FFFFFF; stroke:#C6D0D9; }
+  .n.dash { stroke:#15202B; }
+  .t, .gt { fill:#15202B; }
+  .s, .sl, .al, .lg { fill:#5A6877; }
+  .al { stroke:#FFFFFF; }
+  .grp { fill:#F7F9FB; stroke:#C6D0D9; }
+  .pub { fill:rgba(122,161,22,.07); }
+  .priv { fill:rgba(0,164,166,.06); }
+  .iso { fill:rgba(20,126,186,.07); }
+  .ar { stroke:#5A6877; }
+  .mk { fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  svg { color:#95A3B1; }
+  .bg { fill:#0E141A; }
+  .n { fill:#161F28; stroke:#344352; }
+  .n.dash { stroke:#E2E8EE; }
+  .t, .gt { fill:#E2E8EE; }
+  .s, .sl, .al, .lg { fill:#95A3B1; }
+  .al { stroke:#161F28; }
+  .grp { fill:#121A22; stroke:#344352; }
+  .pub { fill:rgba(122,161,22,.10); }
+  .priv { fill:rgba(0,164,166,.09); }
+  .iso { fill:rgba(20,126,186,.12); }
+  .ar { stroke:#95A3B1; }
+  .mk { fill:#95A3B1; }
+  }
+</style>
+<defs>
+  <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path class="mk" d="M0,0 L10,5 L0,10 z"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="980" height="600" rx="10"/>
+<style>
+  .ghost { opacity:.28; }
+  .ring { fill:none; stroke:#D69E2E; stroke-width:2.2; }
+  .down { fill:rgba(221,52,76,.07); stroke:#DD344C; stroke-width:1.4; stroke-dasharray:6 4; }
+  .dn { font-size:11px; font-weight:700; fill:#DD344C; }
+  .ft { font-size:14px; font-weight:700; fill:#15202B; }
+  .fs { font-size:11.5px; fill:#5A6877; }
+  @media (prefers-color-scheme: dark) {
+  .ft { fill:#E2E8EE; } .fs { fill:#95A3B1; }
+  .ring { stroke:#F6C453; }
+  }
+</style>
+<text class="ft" x="20" y="30" text-anchor="start">Frame 4 · A room with no door, and a private tunnel</text>
+<text class="fs" x="20" y="49" text-anchor="start">The isolated subnets get no route out. The private subnets get a free S3 gateway endpoint.</text>
+<rect class="n" x="405" y="62" width="170" height="44" rx="6"/>
+<rect x="413" y="70" width="28" height="28" rx="4" fill="#5A6877"/>
+<text class="ab" x="427" y="87.5" text-anchor="middle">WWW</text>
+<text class="t" x="449" y="81">Internet</text>
+<text class="s" x="449" y="96">users, websites</text>
+<rect class="vpc" x="30" y="150" width="778" height="395" rx="8"/>
+<text class="gl vpcl" x="44" y="170" text-anchor="start">VPC · 10.20.0.0/16</text>
+<rect class="grp" x="44" y="182" width="370" height="350" rx="8"/>
+<text class="gt" x="56" y="200" text-anchor="start">Availability Zone 1a</text>
+<rect class="pub" x="54" y="210" width="350" height="80" rx="6"/>
+<text class="sl publ" x="64" y="226" text-anchor="start">PUBLIC-1a · 10.20.0.0/24</text>
+<rect class="priv" x="54" y="300" width="350" height="120" rx="6"/>
+<text class="sl privl" x="64" y="316" text-anchor="start">PRIVATE-1a · 10.20.10.0/24</text>
+<rect class="iso" x="54" y="430" width="350" height="92" rx="6"/>
+<text class="sl isol" x="64" y="446" text-anchor="start">ISOLATED-1a · 10.20.20.0/24</text>
+<rect class="grp" x="424" y="182" width="370" height="350" rx="8"/>
+<text class="gt" x="436" y="200" text-anchor="start">Availability Zone 1c</text>
+<rect class="pub" x="434" y="210" width="350" height="80" rx="6"/>
+<text class="sl publ" x="444" y="226" text-anchor="start">PUBLIC-1c · 10.20.1.0/24</text>
+<rect class="priv" x="434" y="300" width="350" height="120" rx="6"/>
+<text class="sl privl" x="444" y="316" text-anchor="start">PRIVATE-1c · 10.20.11.0/24</text>
+<rect class="iso" x="434" y="430" width="350" height="92" rx="6"/>
+<text class="sl isol" x="444" y="446" text-anchor="start">ISOLATED-1c · 10.20.21.0/24</text>
+<text class="s" x="394" y="226" text-anchor="end">0.0.0.0/0 to the gateway</text>
+<text class="s" x="64" y="410" text-anchor="start">0.0.0.0/0 to NAT · S3 to the endpoint</text>
+<text class="s" x="394" y="446" text-anchor="end">no route out, ever</text>
+<text class="s" x="774" y="226" text-anchor="end">0.0.0.0/0 to the gateway</text>
+<text class="s" x="444" y="410" text-anchor="start">0.0.0.0/0 to NAT · S3 to the endpoint</text>
+<text class="s" x="774" y="446" text-anchor="end">no route out, ever</text>
+<rect class="n" x="405" y="128" width="170" height="44" rx="6"/>
+<rect x="413" y="136" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="427" y="153.5" text-anchor="middle">IGW</text>
+<text class="t" x="449" y="147">Internet gateway</text>
+<text class="s" x="449" y="162">free, both ways</text>
+<path class="ar" d="M490,106 V128" marker-end="url(#h)" marker-start="url(#h)"/>
+<path class="ar" d="M530,172 V190 H609 V210" marker-end="url(#h)" marker-start="url(#h)"/>
+<rect class="n" x="226" y="238" width="170" height="44" rx="6"/>
+<rect x="234" y="246" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="248" y="263.5" text-anchor="middle">NAT</text>
+<text class="t" x="270" y="257">NAT gateway</text>
+<text class="s" x="270" y="272">Elastic IP · exit only</text>
+<path class="ar" d="M396,252 H419 V190 H450 V172" marker-end="url(#h)"/>
+<path class="ar" d="M130,300 V260 H224" marker-end="url(#h)"/>
+<text class="al" x="136" y="284" text-anchor="start">0.0.0.0/0</text>
+<path class="ar" d="M434,344 H408 V268 H398" marker-end="url(#h)"/>
+<rect class="n" x="614" y="330" width="160" height="44" rx="6"/>
+<rect x="622" y="338" width="28" height="28" rx="4" fill="#8C4FFF"/>
+<text class="ab" x="636" y="355.5" text-anchor="middle">VPCE</text>
+<text class="t" x="658" y="349">S3 endpoint</text>
+<text class="s" x="658" y="364">gateway · free</text>
+<rect class="n" x="822" y="330" width="145" height="44" rx="6"/>
+<rect x="830" y="338" width="28" height="28" rx="4" fill="#7AA116"/>
+<text class="ab" x="844" y="355.5" text-anchor="middle">S3</text>
+<text class="t" x="866" y="349">Amazon S3</text>
+<text class="s" x="866" y="364">in Tokyo</text>
+<path class="ar" d="M774,352 H822" marker-end="url(#h)"/>
+<path class="ar thin" d="M404,423 H694 V376" marker-end="url(#h)"/>
+<rect class="ring" x="610" y="326" width="168" height="52" rx="9"/>
+<rect class="ring" x="50" y="426" width="358" height="100" rx="9"/>
+<rect class="ring" x="430" y="426" width="358" height="100" rx="9"/>
+<rect class="ring" x="20" y="569" width="22" height="14" rx="4"/>
+<text class="lg" x="48" y="580">new or changed in this frame</text>
+<rect class="n ghost" x="247.6" y="569" width="22" height="14" rx="3"/>
+<text class="lg" x="275.6" y="580">comes later, or gone</text>
+<path class="ar" d="M425.6,576 h22"/>
+<text class="lg" x="453.6" y="580">traffic or route</text>
+</svg>
