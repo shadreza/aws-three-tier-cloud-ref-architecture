@@ -18,6 +18,7 @@ Makefile         the only entry point for everyday commands
 terraform/       bootstrap/, modules/, stacks/<layer>/, envs/<env>/ (ADR 0007)
 docs/steps/      the step guides, one file per step
 docs/workbook/   one workbook per step: checklists, commands, log (keep in sync with the guide)
+docs/storybook/  "From Laptop to Tokyo": the system-design series, one episode per domain (voice-guide.md has its rules)
 docs/runbook.md, learning-path.md, teaching-guide.md
 docs/costs.md    Tokyo prices, per service, per environment, per step
 docs/app/        how the app works
@@ -87,6 +88,7 @@ Run `make test` before every commit. After Go changes, `make restart` rebuilds t
 - ADRs: one decision per file, copied from `docs/adr/template.md`, never rewritten later (supersede with a new one). Add each one to `docs/adr/README.md`.
 - Put a diagram wherever it makes a section easier to understand. Every step has its own SVG map (`docs/diagrams/step-NN-*.svg`); update it when the step's architecture changes.
 - When a step guide changes (commands, counts, names), update its workbook and, if it affects operations, the runbook.
+- When a step guide, ADR or `docs/costs.md` changes a number, a name or a decision, check the matching storybook episode (`docs/storybook/`) too.
 
 ## Diagrams
 
