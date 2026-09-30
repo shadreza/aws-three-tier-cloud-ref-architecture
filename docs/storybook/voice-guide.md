@@ -26,7 +26,7 @@ Zayn wrote the app and knows code, not cloud. Zayn's questions are the reader's 
 
 Kian has done this before and asks good questions. Kian is sometimes wrong and says so: about rotation (episode 6), about alarming on errors (episode 12), about the scheduler's cost (episode 11), and Kian causes the incident in episode 12. Kian doesn't give lectures inside scenes; if a scene needs more than three lines of explanation from one character, move the explanation into the teaching text.
 
-Refer to both by name. We haven't given either of them pronouns, so where one is needed, use "they".
+Kian is the senior of the two, and it's fine for him to win more often than he loses, as long as Zayn's knowledge of the code wins the arguments it should. Kian uses he/him. Zayn hasn't been given pronouns, so refer to Zayn by name, or "they" where a pronoun is needed.
 
 ## Scenes
 
