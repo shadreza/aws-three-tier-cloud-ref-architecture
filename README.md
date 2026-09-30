@@ -15,7 +15,7 @@ The app runs on your laptop with Docker. Steps 02 to 09 then build the AWS setup
 
 **New here? Read the [learning path](docs/learning-path.md), then start with [Step 01: Understand the application](docs/steps/01-understand-the-application.md) and its [workbook](docs/workbook/01-understand-the-application.md).**
 
-Want the design thinking without building anything? Read **[From Laptop to Tokyo](docs/storybook/README.md)**, a 15-episode series that explains why every piece is there, what it costs and what we didn't pick.
+Want the design thinking without building anything? Read **[From Laptop to Tokyo](docs/storybook/README.md)**, a 16-episode series that explains why every piece is there, what it costs and what we didn't pick.
 
 ## See it running in 5 minutes
 
